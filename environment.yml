@@ -73,12 +73,19 @@ dependencies:
   - zlib-ng=2.3.3=hed4e4f5_1
   - zstd=1.5.7=hbf9d68e_6
   - pip:
+      - altair==6.0.0
       - annotated-doc==0.0.4
       - anyio==4.13.0
+      - attrs==26.1.0
+      - blinker==1.9.0
+      - cachetools==7.0.5
       - certifi==2026.2.25
+      - charset-normalizer==3.4.7
       - click==8.3.2
       - filelock==3.25.2
       - fsspec==2026.3.0
+      - gitdb==4.0.12
+      - gitpython==3.1.46
       - h11==0.16.0
       - hf-xet==1.4.3
       - httpcore==1.0.9
@@ -86,26 +93,40 @@ dependencies:
       - huggingface-hub==1.9.1
       - idna==3.11
       - jinja2==3.1.6
+      - jsonschema==4.26.0
+      - jsonschema-specifications==2025.9.1
       - markdown-it-py==4.0.0
       - markupsafe==3.0.3
       - mdurl==0.1.2
       - mpmath==1.3.0
+      - narwhals==2.19.0
       - networkx==3.6.1
       - numpy==2.4.4
+      - protobuf==7.34.1
+      - pyarrow==23.0.1
+      - pydeck==0.9.1
       - pygments==2.20.0
       - python-dotenv==1.2.2
       - pyyaml==6.0.3
       - rank-bm25==0.2.2
+      - referencing==0.37.0
       - regex==2026.4.4
+      - requests==2.33.1
       - rich==14.3.3
+      - rpds-py==0.30.0
       - safetensors==0.7.0
       - sentence-transformers==5.3.0
       - setuptools==81.0.0
       - shellingham==1.5.4
+      - smmap==5.0.3
+      - streamlit==1.56.0
       - sympy==1.14.0
+      - tenacity==9.1.4
       - tokenizers==0.22.2
+      - toml==0.10.2
       - torch==2.11.0
       - tqdm==4.67.3
       - transformers==5.5.0
       - typer==0.24.1
       - typing-extensions==4.15.0
+      - urllib3==2.6.3
