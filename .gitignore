@@ -208,4 +208,4 @@ __marimo__/
 
 data/raw/*.jsonl
 data/raw/*.parquet
-
+data/processed/*_merged.parquet
