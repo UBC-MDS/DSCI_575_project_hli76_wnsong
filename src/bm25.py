@@ -1,12 +1,12 @@
 import os
 import pickle
-import re
 from rank_bm25 import BM25Okapi
 from pathlib import Path
-from utils import simple_tokenize
+import numpy as np
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(SCRIPT_DIR)
+from utils import simple_tokenize
 
 RAW_DATA_DIR = Path("../data/raw")
 PROCESSED_DATA_DIR = Path("../data/processed")
@@ -66,8 +66,6 @@ class BM25Search:
         query_tokens = simple_tokenize(query)
         scores = self.bm25.get_scores(query_tokens)
 
-        ranked_idx = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[
-            :top_k
-        ]
+        ranked_idx = np.argsort(scores)[::-1][:top_k]
 
         return [(index, scores[index]) for index in ranked_idx]
