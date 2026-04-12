@@ -63,6 +63,12 @@ Run the following code will obtain the following files:
 - document ids (`parent_asin`) in a pickle file
 - product documents in a pickle file
 
-```python
+```bash
 python src/download_data.py
+```
+
+### Run Web Application Locally
+Run the following code in the terminal at project root to run the app
+```bash
+streamlit run app/app.py
 ```
