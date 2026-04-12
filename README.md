@@ -30,8 +30,13 @@ DSCI_575_project_hli76_wnsong/
 ├── .env
 │
 ├── data/
-│   ├── raw/                   # downloaded .jsonl.gz files (put them in .gitignore)
+│   ├── raw/
+│   │   ├── Appliances_meta_raw.parquet
+│   │   └── Appliances_reviews_raw.parquet
 │   └── processed/             # cleaned/ chunked / indexed files
+│       ├── Appliances_merged.parquet
+│       ├── Appliances_product_documents.pkl
+│       └── Appliances_doc_ids.pkl
 │
 ├── notebooks/
 │   ├── milestone1_exploration.ipynb
@@ -42,11 +47,22 @@ DSCI_575_project_hli76_wnsong/
 │   ├── semantic.py
 │   ├── retrieval_metrics.py
 │   ├── utils.py
-│   └── <OTHER_SCRIPTS>
+│   └── download_data.py
 │
 │── results/
 │   └── milestone1_discussion.md
 │
 ├── app/
-│   └── <YOUR_APP>.py           # single app, updated each milestone
+│   └── app.py
+```
+
+### Download Data
+Run the following code will obtain the following files:
+- raw data for reviews and meta data as parquet file
+- merged data (reviews + meta data) for each product in a single parquet file
+- document ids (`parent_asin`) in a pickle file
+- product documents in a pickle file
+
+```python
+python src/download_data.py
 ```
