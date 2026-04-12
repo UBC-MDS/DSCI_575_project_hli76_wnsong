@@ -41,8 +41,8 @@ semantic = SemanticSearch(documents)
 # output text for reviews
 def review_text(reviews, max_len=200):
     output_text = ""
-    while len(output_text) < 200 or len(output_text) != len(reviews):
-        for r in reviews:
+    for r in reviews:
+        if len(output_text) < 200 or len(output_text) <= len(reviews):
             output_text += r + "\n"
     return output_text
 
@@ -88,8 +88,8 @@ if query and mode != "Hybrid":
     st.subheader("Results")
 
     for i, (idx, score) in enumerate(results):
-        product_asin = doc_ids[idx]
-        product = products.loc[products["parent_asin"] == product_asin]
+        parent_asin = doc_ids[idx]
+        product = products.loc[products.parent_asin == parent_asin]
 
         with st.container():
             st.markdown(f"### {product.product_title.values[0]}")
@@ -97,7 +97,7 @@ if query and mode != "Hybrid":
             st.write(review_text(product.reviews.values[0]))
 
             # rating
-            st.write(f"⭐ Rating: {product.average_rating.values[0]}")
+            st.write(f"⭐ Rating: {product.avg_rating.values[0]}")
 
             # score
             st.write(f"Score: {score:.3f}")
@@ -107,12 +107,12 @@ if query and mode != "Hybrid":
 
             with col1:
                 if st.button("👍", key=f"up_{i}"):
-                    log_feedback(query, product["parent_asin"], score, 1)
+                    log_feedback(query, product.parent_asin.values[0], score, 1)
                     st.success("Feedback saved")
 
             with col2:
                 if st.button("👎", key=f"down_{i}"):
-                    log_feedback(query, product["parent_asin"], score, 0)
+                    log_feedback(query, product.parent_asin.values[0], score, 0)
                     st.success("Feedback saved")
 
             st.divider()
