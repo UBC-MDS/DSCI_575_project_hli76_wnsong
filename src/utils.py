@@ -11,7 +11,8 @@ def simple_tokenize(text):
     text = re.sub(r"[^a-z0-9\s-]", "", text)
     tokens = text.split()
     tokens = [
-        t for t in tokens
-        if t and t not in STOP_WORDS # remove stop words and empty token
+        t
+        for t in tokens
+        if t and t not in STOP_WORDS  # remove stop words and empty token
     ]
     return tokens
