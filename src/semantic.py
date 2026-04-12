@@ -36,12 +36,12 @@ class SemanticSearch:
     # Build and save index
     def build(self, documents):
         self.documents = documents
-        self.embeddings = self.model.encode(documents)
+        self.embeddings = self.model.encode(documents).astype("float32")
+        faiss.normalize_L2(self.embeddings)
 
         self.index = faiss.IndexFlatIP(self.embeddings.shape[1])
         self.index.add(self.embeddings)
 
-        os.makedirs(os.path.dirname(self.index_path), exist_ok=True)
         faiss.write_index(self.index, self.index_path)
 
     # load index
@@ -52,7 +52,9 @@ class SemanticSearch:
     def search(self, query, top_k=5):
         top_k = min(top_k, len(self.documents))
 
-        query_vec = self.model.encode([query])
+        query_vec = self.model.encode([query]).astype("float32")
+        faiss.normalize_L2(query_vec)
+
         scores, indices = self.index.search(query_vec, top_k)
 
         return [
