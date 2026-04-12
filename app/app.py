@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.bm25 import BM25Search
 from src.semantic import SemanticSearch
+from src.hybrid import HybridSearch
 from src.download_data import download_data
 
 FILE_PATH = os.path.dirname(os.path.abspath("."))
@@ -36,7 +37,7 @@ products = c2.execute(
 # Initialize search systems (replace with real ones)
 bm25 = BM25Search(documents)
 semantic = SemanticSearch(documents)
-
+hybrid = HybridSearch(bm25=bm25, semantic=semantic, alpha=0.5, top_k_candidates=100)
 
 # output text for reviews
 def review_text(reviews, max_len=200):
@@ -117,4 +118,38 @@ if query and mode != "Hybrid":
 
             st.divider()
 elif mode == "Hybrid":
-    st.write("not implemented yet")
+    raw_results = hybrid.search(query, top_k=5)  # list of (idx, hybrid_score, details)
+    # convert to same format as BM25/Semantic: list of (idx, score)
+    results = [(idx, score) for idx, score, _details in raw_results]
+
+    st.subheader("Results")
+
+    for i, (idx, score) in enumerate(results):
+        parent_asin = doc_ids[idx]
+        product = products.loc[products.parent_asin == parent_asin]
+
+        with st.container():
+            st.markdown(f"### {product.product_title.values[0]}")
+
+            st.write(review_text(product.reviews.values[0]))
+
+            # rating
+            st.write(f"⭐ Rating: {product.avg_rating.values[0]}")
+
+            # score
+            st.write(f"Score: {score:.3f}")
+
+            # feedback buttons
+            col1, col2 = st.columns(2)
+
+            with col1:
+                if st.button("👍", key=f"up_{i}"):
+                    log_feedback(query, product.parent_asin.values[0], score, 1)
+                    st.success("Feedback saved")
+
+            with col2:
+                if st.button("👎", key=f"down_{i}"):
+                    log_feedback(query, product.parent_asin.values[0], score, 0)
+                    st.success("Feedback saved")
+
+            st.divider()
