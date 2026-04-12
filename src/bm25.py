@@ -6,7 +6,7 @@ import numpy as np
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(SCRIPT_DIR)
-from utils import simple_tokenize
+from src.utils import simple_tokenize
 
 RAW_DATA_DIR = Path("../data/raw")
 PROCESSED_DATA_DIR = Path("../data/processed")
