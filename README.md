@@ -30,16 +30,22 @@ DSCI_575_project_hli76_wnsong/
 ├── .env
 │
 ├── data/
+│   ├── queries.csv
 │   ├── raw/
 │   │   ├── Appliances_meta_raw.parquet
 │   │   └── Appliances_reviews_raw.parquet
 │   └── processed/             # cleaned/ chunked / indexed files
 │       ├── Appliances_merged.parquet
 │       ├── Appliances_product_documents.pkl
-│       └── Appliances_doc_ids.pkl
+│       ├── Appliances_doc_ids.pkl
+│       ├── Appliances_products.parquet
+│       ├── bm25.pkl
+│       ├── tokenized_corpus.pkl
+│       └── faiss.index
 │
 ├── notebooks/
 │   ├── milestone1_exploration.ipynb
+│   ├── demo.ipynb
 │   └── <OTHER NOTEBOOKS>
 │
 ├── src/
@@ -59,13 +65,23 @@ DSCI_575_project_hli76_wnsong/
 ### Download Data
 Run the following code will obtain the following files:
 - raw data for reviews and meta data as parquet file
-- merged data (reviews + meta data) for each product in a single parquet file
+- merged data (reviews + meta data) where each review is a single row in a parquet file
 - document ids (`parent_asin`) in a pickle file
 - product documents in a pickle file
+- merged product data where each product is a single row in a parquet file
 
 ```bash
 python src/download_data.py
 ```
+
+#### Other Saved Files
+- `data/queries.csv`: 21 queries used for testing
+- files created by `src/bm25.py`:
+    - `data/processed/bm25.pkl` 
+    - `data/processed/tokenized_corpus.pkl` 
+- files created by `src/semantic.py`:
+    - `data/processed/faiss.index`
+
 
 ### Run Web Application Locally
 Run the following code in the terminal at project root to run the app
