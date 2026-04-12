@@ -43,7 +43,7 @@ def review_text(reviews, max_len=200):
     output_text = ""
     while len(output_text) < 200 or len(output_text) != len(reviews):
         for r in reviews:
-            output_text += r + '\n'
+            output_text += r + "\n"
     return output_text
 
 
@@ -79,28 +79,25 @@ mode = st.radio("Search Mode", ["BM25", "Semantic", "Hybrid"], horizontal=True)
 query = st.text_input("Enter your query")
 
 # display results
-if query:
+if query and mode != "Hybrid":
     if mode == "BM25":
         results = bm25.search(query)
     elif mode == "Semantic":
         results = semantic.search(query)
-    else:
-        st.write("not implemented yet")
-        results = None
 
     st.subheader("Results")
 
     for i, (idx, score) in enumerate(results):
         product_asin = doc_ids[idx]
-        product = products.loc[products['parent_asin'] == product_asin]
+        product = products.loc[products["parent_asin"] == product_asin]
 
         with st.container():
-            st.markdown(f"### {product['product_title']}")
+            st.markdown(f"### {product.product_title.values[0]}")
 
-            st.write(review_text(product['reviews']))
+            st.write(review_text(product.reviews.values[0]))
 
             # rating
-            st.write(f"⭐ Rating: {product['average_rating']}")
+            st.write(f"⭐ Rating: {product.average_rating.values[0]}")
 
             # score
             st.write(f"Score: {score:.3f}")
@@ -119,3 +116,5 @@ if query:
                     st.success("Feedback saved")
 
             st.divider()
+else:
+    st.write("not implemented yet")
