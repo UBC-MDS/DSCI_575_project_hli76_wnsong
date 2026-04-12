@@ -122,28 +122,38 @@ def download_data():
         print("Merged data for {} is ready".format(CATEGORY))
 
     # Download product documents as pickle file
+    products_file = f"{CATEGORY}_products.parquet"
     document_id_file = f"{CATEGORY}_doc_ids.pkl"
     documents_file = f"{CATEGORY}_product_documents.pkl"
 
-    if document_id_file not in os.listdir(
-        PROCESSED_DATA_DIR
-    ) or documents_file not in os.listdir(PROCESSED_DATA_DIR):
-        products = c2.execute(
+    if products_file not in os.listdir(PROCESSED_DATA_DIR):
+        print("Saving Products file\nCategory: {}".format(CATEGORY))
+        c2.execute(
             f"""
-            SELECT 
-                parent_asin,
-                ANY_VALUE(product_title) AS product_title,
-                ANY_VALUE(main_category) AS main_category,
-                ANY_VALUE(store) AS store,
-                ANY_VALUE(price) AS price,
-                ANY_VALUE(average_rating) AS avg_rating,
-                LIST(text) AS reviews,
-                LIST(title) AS review_titles,
-                LIST(helpful_vote) AS helpful_votes
-            FROM read_parquet('{PROCESSED_DATA_DIR}/{merged_data_file}')
-            GROUP BY parent_asin;
+            COPY (
+                SELECT 
+                    parent_asin,
+                    ANY_VALUE(product_title) AS product_title,
+                    ANY_VALUE(main_category) AS main_category,
+                    ANY_VALUE(store) AS store,
+                    ANY_VALUE(price) AS price,
+                    ANY_VALUE(average_rating) AS avg_rating,
+                    LIST(text) AS reviews,
+                    LIST(title) AS review_titles,
+                    LIST(helpful_vote) AS helpful_votes
+                FROM read_parquet('{PROCESSED_DATA_DIR}/{merged_data_file}')
+                GROUP BY parent_asin
+            )
+            TO '{PROCESSED_DATA_DIR}/{products_file}' (FORMAT PARQUET, COMPRESSION ZSTD)
         """
-        ).df()
+        )
+        print("Done")
+    else:
+        print("Products Data for {} is ready".format(CATEGORY))
+
+    products = c2.execute(
+        f"SELECT * FROM read_parquet('{PROCESSED_DATA_DIR}/{products_file}')"
+    ).df()
 
     if document_id_file not in os.listdir(PROCESSED_DATA_DIR):
         print("Downloading document ids\nCategory: {}".format(CATEGORY))
