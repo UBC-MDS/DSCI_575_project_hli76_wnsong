@@ -3,19 +3,13 @@ import pickle
 import re
 from rank_bm25 import BM25Okapi
 from pathlib import Path
-
+from utils import simple_tokenize
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(SCRIPT_DIR)
 
 RAW_DATA_DIR = Path("../data/raw")
 PROCESSED_DATA_DIR = Path("../data/processed")
-
-
-def simple_tokenize(text):
-    text = text.lower()
-    text = re.sub(r"[^a-z0-9\s-]", "", text)
-    return text.split()
 
 
 class BM25Search:
