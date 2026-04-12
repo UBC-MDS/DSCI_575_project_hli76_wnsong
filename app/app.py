@@ -31,7 +31,6 @@ c2 = duckdb.connect()
 products = c2.execute(
     f"SELECT * FROM read_parquet('{PROCESSED_DATA_DIR}/{product_data_file}')"
 ).df()
-duckdb.register("products", products)
 
 
 # Initialize search systems (replace with real ones)
@@ -93,11 +92,7 @@ if query:
 
     for i, (idx, score) in enumerate(results):
         product_asin = doc_ids[idx]
-        product = c2.execute(f"""
-                                SELECT *
-                                FROM products
-                                WHERE parent_asin = {product_asin}
-                            """).to_df()
+        product = products.loc[products['parent_asin'] == product_asin]
 
         with st.container():
             st.markdown(f"### {product['product_title']}")
