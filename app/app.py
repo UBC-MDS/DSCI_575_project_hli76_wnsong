@@ -116,5 +116,5 @@ if query and mode != "Hybrid":
                     st.success("Feedback saved")
 
             st.divider()
-else:
+elif mode == "Hybrid":
     st.write("not implemented yet")
