@@ -12,11 +12,58 @@ PROCESSED_DATA_DIR = Path("../data/processed")
 
 
 class SemanticSearch:
+    """
+    Semantic search system using SentenceTransformer embeddings and FAISS
+    for efficient nearest-neighbor retrieval.
+
+    Parameters
+    ----------
+    documents : list of str
+        Corpus of documents to embed and index.
+    index_path : str, optional
+        Path to save/load FAISS index. Default is
+        "../data/processed/faiss.index".
+
+    Attributes
+    ----------
+    documents : list of str
+        Input document corpus.
+    model : SentenceTransformer
+        Pretrained transformer model used for encoding text.
+    index : faiss.Index or None
+        FAISS index for similarity search.
+    embeddings : np.ndarray or None
+        Dense vector representations of documents.
+    """
+
     def __init__(
         self,
         documents,
         index_path=f"{PROCESSED_DATA_DIR}/faiss.index",
     ):
+        """
+        Semantic search system using SentenceTransformer embeddings and FAISS
+        for efficient nearest-neighbor retrieval.
+
+        Parameters
+        ----------
+        documents : list of str
+            Corpus of documents to embed and index.
+        index_path : str, optional
+            Path to save/load FAISS index. Default is
+            "../data/processed/faiss.index".
+
+        Attributes
+        ----------
+        documents : list of str
+            Input document corpus.
+        model : SentenceTransformer
+            Pretrained transformer model used for encoding text.
+        index : faiss.Index or None
+            FAISS index for similarity search.
+        embeddings : np.ndarray or None
+            Dense vector representations of documents.
+        """
         self.documents = documents
         self.index_path = index_path
 
@@ -33,8 +80,26 @@ class SemanticSearch:
             self.build(documents)
             print("done")
 
-    # Build and save index
     def build(self, documents):
+        """
+        Build FAISS index from document embeddings and save it to disk.
+
+        Parameters
+        ----------
+        documents : list of str
+            Corpus of documents to encode and index.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        - Uses SentenceTransformer to generate embeddings.
+        - Embeddings are L2-normalized for cosine similarity.
+        - FAISS IndexFlatIP is used (inner product similarity).
+        - Index is persisted to disk.
+        """
         self.documents = documents
         self.embeddings = self.model.encode(documents).astype("float32")
         faiss.normalize_L2(self.embeddings)
@@ -44,12 +109,47 @@ class SemanticSearch:
 
         faiss.write_index(self.index, self.index_path)
 
-    # load index
     def load(self):
+        """
+        Load a prebuilt FAISS index from disk.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        Only the FAISS index is loaded; document embeddings are not restored.
+        Ensure `self.documents` matches the indexed corpus.
+        """
         self.index = faiss.read_index(self.index_path)
 
-    # search query
     def search(self, query, top_k=5):
+        """
+        Perform semantic search over the document corpus.
+
+        Parameters
+        ----------
+        query : str
+            Input query string.
+        top_k : int, optional
+            Number of top results to return. Default is 5.
+
+        Returns
+        -------
+        list of tuple
+            List of (document_index, similarity_score) pairs sorted by relevance.
+
+        Notes
+        -----
+        - Query is embedded using SentenceTransformer.
+        - Cosine similarity is computed via FAISS inner product on normalized vectors.
+        - Returned indices correspond to positions in `self.documents`.
+        """
         top_k = min(top_k, len(self.documents))
 
         query_vec = self.model.encode([query]).astype("float32")
@@ -57,7 +157,4 @@ class SemanticSearch:
 
         scores, indices = self.index.search(query_vec, top_k)
 
-        return [
-            (index, float(score))
-            for index, score in zip(indices[0], scores[0])
-        ]
+        return [(index, float(score)) for index, score in zip(indices[0], scores[0])]

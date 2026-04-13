@@ -23,6 +23,40 @@ os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
 
 # build document for a single oroduct
 def build_document(product, max_reviews=20, min_len=30, max_chars=None):
+    """
+    Construct a structured text document representation of a product.
+
+    Parameters
+    ----------
+    product : dict
+        A dictionary containing product metadata and review information.
+        Expected keys include:
+        - product_title
+        - main_category
+        - store
+        - price
+        - avg_rating
+        - reviews
+        - review_titles
+        - helpful_votes
+    max_reviews : int, optional
+        Maximum number of reviews to include in the document. Default is 20.
+    min_len : int, optional
+        Minimum character length required for a review to be included. Default is 30.
+    max_chars : int or None, optional
+        Maximum number of characters per review. If None, reviews are not truncated.
+
+    Returns
+    -------
+    str
+        A formatted text document containing product metadata and selected reviews.
+
+    Notes
+    -----
+    - Reviews are sorted by helpful votes in descending order.
+    - Duplicate reviews are removed.
+    - Short reviews are filtered out.
+    """
     reviews = product["reviews"]
     review_titles = product["review_titles"]
     helpful_votes = product["helpful_votes"]
@@ -68,6 +102,35 @@ Reviews:
 
 
 def download_data():
+    """
+    Download, process, and prepare Amazon product data for search indexing.
+
+    This function:
+    1. Downloads raw review and metadata JSONL files (if not already present).
+    2. Converts them into compressed Parquet format using DuckDB.
+    3. Merges review and metadata into a unified dataset.
+    4. Aggregates product-level information grouped by `parent_asin`.
+    5. Generates:
+        - A products parquet file
+        - A list of document IDs (parent_asin)
+        - A list of product documents (text representations for retrieval)
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+        This function writes multiple files to disk under raw/ and processed/ directories.
+
+    Notes
+    -----
+    - Uses DuckDB for fast SQL-based ETL processing.
+    - Stores intermediate datasets in Parquet format with ZSTD compression.
+    - Uses pickle to serialize document lists and IDs.
+    - Calls `build_document` to construct retrieval-ready text representations.
+    """
     c2 = duckdb.connect()
 
     review_data_file = f"{CATEGORY}_reviews_raw.parquet"

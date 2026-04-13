@@ -36,6 +36,28 @@ products = c2.execute(
 
 # output text for reviews
 def review_text(reviews, max_len=200):
+    """
+    Concatenate a list of review strings into a single formatted text block.
+
+    Parameters
+    ----------
+    reviews : list of str
+        A list containing individual review texts.
+    max_len : int, optional
+        Maximum character length of the output text. Default is 200.
+
+    Returns
+    -------
+    str
+        A single string containing concatenated reviews separated by newlines.
+        The output is truncated based on the specified maximum length.
+
+    Notes
+    -----
+    The function appends reviews sequentially until the output length
+    exceeds `max_len` or all reviews are processed. The logic may allow
+    slight overflow beyond `max_len` due to per-review concatenation.
+    """
     output_text = ""
     for r in reviews:
         if len(output_text) < 200 or len(output_text) <= len(reviews):
@@ -50,6 +72,30 @@ FEEDBACK_FILE = f"{PROCESSED_DATA_DIR}/feedback.csv"
 
 
 def log_feedback(query, doc, score, feedback):
+    """
+    Log user feedback for a search result into a CSV file.
+
+    Parameters
+    ----------
+    query : str
+        The search query entered by the user.
+    doc : str
+        Identifier of the retrieved document (e.g., parent ASIN).
+    score : float
+        Relevance score assigned to the document by the search system.
+    feedback : int
+        User feedback indicator (e.g., 1 for helpful, 0 for not helpful).
+
+    Returns
+    -------
+    None
+        This function does not return any value. It writes data to a CSV file.
+
+    Notes
+    -----
+    - If the feedback file already exists, the new feedback entry is appended.
+    - The CSV file is stored at the path defined by `FEEDBACK_FILE`.
+    """
     row = {
         "query": query,
         "document": doc,
