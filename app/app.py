@@ -70,6 +70,79 @@ def log_feedback(query, doc, score, feedback):
 
 st.title("Smart Amazon Product Query Assistant")
 
+st.markdown("""<style>
+/* Global font size */
+html, body, [class*="css"]  {
+    font-size: 18px;
+}
+
+/* Text input styling */
+.stTextInput > div > div > input {
+    font-size: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #3B82F6;
+    background-color: #111827;
+    color: #E5E7EB;
+}
+
+/* Input focus effect */
+.stTextInput > div > div > input:focus {
+    border: 1px solid #60A5FA;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
+}
+
+/* Labels */
+label {
+    font-size: 16px !important;
+    font-weight: 500;
+}
+
+/* Slider and radio */
+.stSlider, .stRadio {
+    font-size: 16px;
+}
+
+/* Card container */
+.result-card {
+    background-color: #172036;
+    padding: 18px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(59,130,246,0.35); /* stronger border */
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5); /* depth */
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover effect: slightly brighter on hover */
+.result-card:hover {
+    background-color: #1E2A44; 
+    border: 1px solid rgba(96,165,250,0.8);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.7);
+}
+
+/* Title */
+.result-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Rating and score */
+.result-meta {
+    font-size: 18px;
+    color: #9CA3AF;
+    margin-bottom: 10px;
+}
+
+/* Review text */
+.result-text {
+    font-size: 20px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+</style>""", unsafe_allow_html=True)
+
 # model
 mode = st.radio("Search Mode", ["BM25", "Semantic", "Hybrid"], horizontal=True)
 
@@ -107,28 +180,30 @@ if query:
         parent_asin = doc_ids[idx]
         product = products.loc[products.parent_asin == parent_asin]
 
-        with st.container():
-            st.markdown(f"#### {product.product_title.values[0]}")
+        title = product.product_title.values[0]
+        reviews = review_text(product.reviews.values[0])
+        rating = product.avg_rating.values[0]
+        price = product.price.values[0]
 
-            st.write(review_text(product.reviews.values[0]))
+        st.markdown(f"""
+        <div class="result-card">
+            <div class="result-title">{title}</div>
+            <div class="result-meta">⭐ Rating: {rating} | Score: {score:.3f} | Price: {price}</div>
+            <div class="result-text">{reviews}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-            # rating
-            st.write(f"⭐ Rating: {product.avg_rating.values[0]}")
+        # 👍 👎 buttons under each card
+        col1, col2 = st.columns(2)
 
-            # score
-            st.write(f"Score: {score:.3f}")
+        with col1:
+            if st.button("👍 Helpful", key=f"up_{i}"):
+                log_feedback(query, parent_asin, score, 1)
+                st.success("Feedback saved")
 
-            # feedback buttons
-            col1, col2 = st.columns(2)
-
-            with col1:
-                if st.button("👍", key=f"up_{i}"):
-                    log_feedback(query, product.parent_asin.values[0], score, 1)
-                    st.success("Feedback saved")
-
-            with col2:
-                if st.button("👎", key=f"down_{i}"):
-                    log_feedback(query, product.parent_asin.values[0], score, 0)
-                    st.success("Feedback saved")
-
-            st.divider()
+        with col2:
+            if st.button("👎 Not Helpful", key=f"down_{i}"):
+                log_feedback(query, parent_asin, score, 0)
+                st.success("Feedback saved")
+        
+        st.divider()
