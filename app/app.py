@@ -34,17 +34,14 @@ products = c2.execute(
 ).df()
 
 
-# Initialize search systems (replace with real ones)
-bm25 = BM25Search(documents)
-semantic = SemanticSearch(documents)
-hybrid = HybridSearch(bm25=bm25, semantic=semantic, alpha=0.5, top_k_candidates=100)
-
 # output text for reviews
 def review_text(reviews, max_len=200):
     output_text = ""
     for r in reviews:
         if len(output_text) < 200 or len(output_text) <= len(reviews):
-            output_text += r + "\n"
+            output_text += f"""
+{r}
+"""
     return output_text
 
 
@@ -76,15 +73,33 @@ st.title("Smart Amazon Product Query Assistant")
 # model
 mode = st.radio("Search Mode", ["BM25", "Semantic", "Hybrid"], horizontal=True)
 
+# display top k results
+top_k = st.slider(
+    "Number of Results", min_value=5, max_value=100, value=5, step=5, format="plain"
+)
+
 # query
 query = st.text_input("Enter your query")
 
+# Initialize search systems
+bm25 = BM25Search(documents)
+semantic = SemanticSearch(documents)
+hybrid = HybridSearch(
+    bm25=bm25, semantic=semantic, alpha=0.5, top_k_candidates=top_k + 100
+)
+
 # display results
-if query and mode != "Hybrid":
+if query:
     if mode == "BM25":
-        results = bm25.search(query)
+        results = bm25.search(query, top_k=top_k)
     elif mode == "Semantic":
-        results = semantic.search(query)
+        results = semantic.search(query, top_k=top_k)
+    elif mode == "Hybrid":
+        raw_results = hybrid.search(
+            query, top_k=top_k
+        )  # list of (idx, hybrid_score, details)
+        # convert to same format as BM25/Semantic: list of (idx, score)
+        results = [(idx, score) for idx, score, _details in raw_results]
 
     st.subheader("Results")
 
@@ -93,43 +108,7 @@ if query and mode != "Hybrid":
         product = products.loc[products.parent_asin == parent_asin]
 
         with st.container():
-            st.markdown(f"### {product.product_title.values[0]}")
-
-            st.write(review_text(product.reviews.values[0]))
-
-            # rating
-            st.write(f"⭐ Rating: {product.avg_rating.values[0]}")
-
-            # score
-            st.write(f"Score: {score:.3f}")
-
-            # feedback buttons
-            col1, col2 = st.columns(2)
-
-            with col1:
-                if st.button("👍", key=f"up_{i}"):
-                    log_feedback(query, product.parent_asin.values[0], score, 1)
-                    st.success("Feedback saved")
-
-            with col2:
-                if st.button("👎", key=f"down_{i}"):
-                    log_feedback(query, product.parent_asin.values[0], score, 0)
-                    st.success("Feedback saved")
-
-            st.divider()
-elif mode == "Hybrid":
-    raw_results = hybrid.search(query, top_k=5)  # list of (idx, hybrid_score, details)
-    # convert to same format as BM25/Semantic: list of (idx, score)
-    results = [(idx, score) for idx, score, _details in raw_results]
-
-    st.subheader("Results")
-
-    for i, (idx, score) in enumerate(results):
-        parent_asin = doc_ids[idx]
-        product = products.loc[products.parent_asin == parent_asin]
-
-        with st.container():
-            st.markdown(f"### {product.product_title.values[0]}")
+            st.markdown(f"#### {product.product_title.values[0]}")
 
             st.write(review_text(product.reviews.values[0]))
 
