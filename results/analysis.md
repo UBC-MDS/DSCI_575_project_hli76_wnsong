@@ -334,15 +334,15 @@ There are 12 total queries ordered by Items and Difficulty levels for easier-to-
 
 ### Strengths and weaknesses of each method:
 
-* **BM25**
+##### BM25
 - Strengths: Fast, precise for exact keywords, interpretable ranking.
 - Weaknesses: Misses paraphrases and intent; vulnerable to token overlap that surfaces parts/accessories.
 
-* **Semantic (SentenceTransformer + FAISS)**
+##### Semantic (SentenceTransformer + FAISS)
 - Strengths: Captures paraphrase and intent; robust to wording differences.
 - Weaknesses: Broader recall can introduce off‑topic items; cosine scores are not directly comparable to BM25 and need normalization.
 
-* **Hybrid**
+##### Hybrid
 - Strengths: Balances lexical precision and semantic recall; often yields the best top‑k for medium queries.
 - Weaknesses: Still limited by the quality of candidate sets; normalization choices and alpha tuning affect results.
 
