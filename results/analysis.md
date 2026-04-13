@@ -1,6 +1,10 @@
 # Search Comparison Report
 
 Queries compared: BM25, Semantic, Hybrid
+Items compared: kettle, blender, oven, vacuum
+Difficulty levels: easy, medium, complex
+
+There are 12 total queries ordered by Items and Difficulty levels for easier-to-digest comparison.
 
 ## Query: `stainless steel kettle`  
 - **Difficulty:** kettle-easy
@@ -17,15 +21,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Which method performs better: BM25 and Hybrid perform best. BM25 returns exact matches (e.g., Danby DKT17C2SSDB, SimpleReal pour-over kettle) at the top; Hybrid preserves those top exact matches and gives them the highest combined score.
+- Which method better: BM25 and Hybrid perform best. BM25 returns exact matches (e.g., Danby DKT17C2SSDB, SimpleReal pour-over kettle) at the top; Hybrid preserves those top exact matches and gives them the highest combined score.
 
-- Cases where BM25 fails but semantic succeeds: Not in the top results — BM25 already finds exact stainless‑steel items. Semantic returns some related stainless items but also a few non‑kettle stainless items (milk frothing pitchers), so semantic is noisier here.
+- BM25 fails but semantic succeeds: BM25 already finds exact stainless‑steel items. Semantic returns some related stainless items but also a few non‑kettle stainless items (milk frothing pitchers), so semantic is noisier here.
 
-- Cases where semantic search fails: Semantic surfaced non‑kettle stainless items (milk pitchers, measuring cups) that are conceptually “stainless” but not the user’s intent (a kettle).
+- Semantic fails: Semantic surfaced non‑kettle stainless items (milk pitchers, measuring cups) that are conceptually “stainless” but not the user’s intent (a kettle).
 
-- Are top results useful for intent: Yes — BM25 top results are directly relevant. Hybrid keeps the best of both. Semantic alone is less precise for this short, keyword query.
+- Top results useful for intent: Yes. BM25 top results are directly relevant. Hybrid keeps the best of both. Semantic alone is less precise for this short, keyword query.
 
-- Strengths / Weaknesses: BM25’s strength is exact keyword matching; semantic can broaden recall but may introduce off‑topic items when the query is short and keyword‑heavy.
+- Performance variation: BM25’s strength is exact keyword matching; semantic can broaden recall but may introduce off‑topic items when the query is short and keyword‑heavy.
 
 ---
 
@@ -44,9 +48,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: Hybrid and Semantic are stronger than BM25. Semantic surfaces items that match the “thermometer/temperature” concept (e.g., the SimpleReal kettle with thermometer) even when titles vary. Hybrid ranks those appropriately.
+
+- BM25 fails but semantic succeeds: BM25 returns many high‑scoring items that match individual tokens but not necessarily the combined intent (some unrelated cooktops or accessories appear). Semantic succeeds at surfacing items that mention temperature control or kettle use.
+
+- Semantic fails: Semantic still returns some unrelated kitchen appliances (cooktops) but fewer than BM25; overall it is better at intent matching here.
+
+- Top results useful for intent: Yes. Hybrid and Semantic include the pour‑over kettle with thermometer; BM25’s top hits include relevant items but also noisy matches.
+
+- Performance variation: Semantic and the hybrid do better. When the query asks for a feature (temperature control), wording can vary across listings, so methods that understand meaning (not just exact words) surface the right kettles.
 
 ---
 
@@ -65,9 +75,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: Neither method fully satisfies the complex multi‑constraint intent. BM25 returns many unrelated small appliances (mini fridges, washing machines) and some kettle items; Semantic returns a mix of related small appliances and kettle‑adjacent items. Hybrid improves ranking but still surfaces many off‑topic items.
+
+- BM25 fails but semantic succeeds: Semantic occasionally surfaces items that mention “portable” or “small” but does not reliably capture the combined constraints (quiet + fast + keep‑warm). BM25 fails to combine constraints and returns high scores for items that share tokens but not intent.
+
+- Semantic fails: Semantic returns many non‑kettle small appliances (mini fridges, cooktops) conceptually “small appliance” but not the specific kettle features requested.
+
+- Top results useful for intent: Partially. Some kettle models appear in the top 5, but many results are irrelevant to the full constraint set.
+
+- Performance variation: Both methods struggle. Queries that combine noise level, speed, and keep‑warm require checking product specs; you need a step that reads and filters product details to be confident in results.
 
 ---
 
@@ -86,9 +102,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: BM25 performs well (returns a personal portable blender at rank 1). Hybrid preserves that top hit. Semantic returns some loosely related appliances (ice makers) and is noisier.
+
+- BM25 fails but semantic succeeds: BM25 already finds the correct product type. Semantic sometimes surfaces related kitchen appliances (ice makers) that are conceptually close but not the requested blender.
+
+- Semantic fails: Semantic’s broader concept matching leads to non‑blender items in the top results.
+
+- Top results useful for intent: BM25 and Hybrid top results are useful and match user intent.
+
+- Performance variation: BM25 is usually fine. A short product name like personal smoothie blender appears in titles and is returned reliably.
 
 ---
 
@@ -107,9 +129,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: Hybrid and BM25 show useful items, but BM25 sometimes ranks spare parts or unrelated accessories highly (motor base replacement, jar gaskets) because of token overlap. Semantic is noisy (ice makers) but can surface blenders that are described for frozen fruit use.
+
+- BM25 fails but semantic succeeds: BM25 can be misled by parts/accessories that share brand or model tokens; semantic can surface blenders described for ice/frozen fruit even when titles differ.
+
+- Semantic fails: Semantic returns many ice‑maker or freezer items conceptually related to “frozen” but not to blending frozen fruit.
+
+- Top results useful for intent: Mixed. Some relevant blenders appear, but many top hits are accessories or unrelated appliances. Hybrid helps but still shows noise.
+
+- Performance variation: Use‑case queries (smoothies with frozen fruit) benefit from understanding intent, but both methods can still return accessories or ice makers unless you check descriptions.
 
 ---
 
@@ -128,9 +156,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: Neither method reliably enforces the price constraint or the specific capability (nut butter + ice). BM25 returns many unrelated stainless items and non‑blender appliances; semantic returns ice makers and other high‑power appliances. Hybrid improves ranking slightly but still fails to enforce price or capability constraints.
+
+- BM25 fails but semantic succeeds: Semantic sometimes surfaces high‑power appliances conceptually (ice makers) but not necessarily blenders that make nut butter. BM25 returns parts and unrelated items due to token overlap.
+
+- Semantic fails: Semantic’s concept matching to “high‑power” and “ice” pulls in ice makers and other appliances rather than blenders with the required specs.
+
+- Top results useful for intent: Not as expected. Top results include milk warmers, washing machines, and ice makers rather than a clear list of high‑power blenders under $200.
+
+- Performance variation: Neither method reliably enforces price or capability constraints (power for nut butter, under $200).
 
 ---
 
@@ -149,9 +183,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: BM25 and Hybrid perform well. BM25 returns compact toaster oven items and accessories; semantic matches the same top item and is close.
+
+- BM25 fails but semantic succeeds: Both methods return relevant items.
+
+- Semantic fails: Minimal for this short keyword query.
+
+- Top results useful for intent: Yes. Top results are relevant toaster ovens or closely related accessories.
+
+- Performance variation: BM25 performs well. Simple category queries like compact toaster oven match product titles and give useful results.
 
 ---
 
@@ -170,9 +210,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: Hybrid and Semantic show strength for the functional intent (convection + small batches). BM25 returns many convection‑related ranges and accessories (sometimes larger ranges), while semantic surfaces items that mention convection explicitly.
+
+- BM25 fails but semantic succeeds: BM25 sometimes returns large ranges or accessory sets because of token overlap; semantic better captures the “convection” concept and small‑appliance context.
+
+- Semantic fails: Some semantic hits are still accessories rather than ovens, but overall it is better at intent matching.
+
+- Top results useful for intent: Partially. Hybrid tends to surface more relevant convection toaster ovens.
+
+- Performance variation: Semantic or hybrid is better. Feature requests (convection for small batches) are phrased in many ways; methods that capture meaning find relevant ovens even when titles differ.
 
 ---
 
@@ -191,9 +237,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: Neither reliably enforces the dimensional constraint (fits 9×13 pan) or the air‑fry feature. BM25 returns many large wall ovens and related items; semantic returns a mix of ovens and accessories. Hybrid improves ranking but still surfaces many irrelevant large ranges and accessories.
+
+- BM25 fails but semantic succeeds: Semantic sometimes finds ovens with air‑fry mentions, but neither method reliably verifies the 9×13 fit.
+
+- Semantic fails: Semantic returns many items that mention “air fry” or “convection” but not the dimensional fit; BM25 returns items with token overlap (9x13 lid, silicone lids) that are not ovens.
+
+- Top results useful for intent: Partially. Some ovens with air‑fry appear, but the critical dimensional constraint is not validated.
+
+- Performance variation: Both methods miss hard constraints like “fits a 9×13 pan".
 
 ---
 
@@ -212,9 +264,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: BM25 and Hybrid perform well; both return robot vacuums at the top. Semantic also returns the correct robot vacuum at rank 1.
+
+- BM25 fails but semantic succeeds: Both methods find robot vacuums.
+
+- Semantic fails: Minimal. Semantic returns some accessory items lower in the list.
+
+- Top results useful for intent: Yes. Top results match the user intent.
+
+- Performance variation: BM25 and hybrid both work well. Generic terms like robot vacuum are common in titles and are returned accurately.
 
 ---
 
@@ -233,9 +291,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: Hybrid and BM25 both surface relevant vacuums and attachments. BM25 returns vacuums and attachments; semantic returns attachments and some relevant vacuums. Hybrid balances both and ranks a hard‑floor attachment highly.
+
+- BM25 fails but semantic succeeds: BM25 sometimes returns replacement parts with high token overlap; semantic can surface attachments or vacuums described for hard floors and pet hair even when titles differ.
+
+- Semantic fails: Semantic returns some parts and accessories but also finds relevant vacuums.
+
+- Top results useful for intent:Mixed but acceptable. Hybrid often surfaces the most useful items (vacuum + hard‑floor attachment).
+
+- Performance variation: Hybrid is helpful. Multi‑attribute queries (hardwood + pet hair) need to balance exact words and intent.
 
 ---
 
@@ -254,9 +318,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method better: Hybrid and BM25 both surface a lightweight cordless stick vacuum at rank 1 (good). However, many other top results are replacement parts or unrelated accessories. Hybrid ranks a relevant cordless stick vacuum highest.
+
+- BM25 fails but semantic succeeds: BM25 returns many parts due to token overlap; semantic helps surface the cordless stick vacuum but also returns unrelated items. Hybrid gives the best practical top result.
+
+- Semantic fails: Semantic returns parts and unrelated small appliances in lower ranks.
+
+- Top results useful for intent: Partially. The top hit is relevant, but many other hits are not.
+
+- Performance variation: Both methods only partially succeed. Constraints such as weight limits and stair suitability will require further reading product specs.
 
 ---
 
