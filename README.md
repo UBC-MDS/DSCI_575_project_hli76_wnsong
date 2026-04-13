@@ -11,14 +11,6 @@ Milestone 1:
 Milestone 2:
 - LLM (To be implement...)
 
-
-## Features
-
-The system is offered in two ways:
-
-**Main Searching Page** (on Streamlit):
-http://localhost:8501/
-
 ## Installation
 
 ### Clone the project and install Python environment
@@ -33,18 +25,17 @@ conda activate dsci575-project
 ```
 
 ### Download Data
-Run the following code will obtain the following files:
+Run the command will obtain the following files:
+```bash
+python src/download_data.py
+```
 - raw data for reviews and meta data as parquet file
 - merged data (reviews + meta data) where each review is a single row in a parquet file
 - document ids (`parent_asin`) in a pickle file
 - product documents in a pickle file
 - merged product data where each product is a single row in a parquet file
 
-```bash
-python src/download_data.py
-```
-
-#### Other Saved Files
+### Other Saved Files
 - `data/queries.csv`: 21 queries used for testing
 - files created by `src/bm25.py`:
     - `data/processed/bm25.pkl` 
@@ -52,12 +43,21 @@ python src/download_data.py
 - files created by `src/semantic.py`:
     - `data/processed/faiss.index`
 
-
 ### Run Web Application Locally
 Run the following code in the terminal at project root to run the app
 ```bash
 streamlit run app/app.py
 ```
+
+Depending on your machine, Streamlit would provide local url for easier access, for example:
+```bash
+You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:[streamlit_provided_address]
+  Network URL: http://[streamlit_provided_address]
+  External URL: http://[streamlit_provided_address]
+```
+Please read through your terminal to get the address
 
 ### Project Structure
 ```
