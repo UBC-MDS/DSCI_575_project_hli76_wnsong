@@ -17,9 +17,15 @@ Queries compared: BM25, Semantic, Hybrid
 
 ### Observations
 
-- Overlap: 
-- Relevance notes: 
-- Strengths / Weaknesses: 
+- Which method performs better: BM25 and Hybrid perform best. BM25 returns exact matches (e.g., Danby DKT17C2SSDB, SimpleReal pour-over kettle) at the top; Hybrid preserves those top exact matches and gives them the highest combined score.
+
+- Cases where BM25 fails but semantic succeeds: Not in the top results — BM25 already finds exact stainless‑steel items. Semantic returns some related stainless items but also a few non‑kettle stainless items (milk frothing pitchers), so semantic is noisier here.
+
+- Cases where semantic search fails: Semantic surfaced non‑kettle stainless items (milk pitchers, measuring cups) that are conceptually “stainless” but not the user’s intent (a kettle).
+
+- Are top results useful for intent: Yes — BM25 top results are directly relevant. Hybrid keeps the best of both. Semantic alone is less precise for this short, keyword query.
+
+- Strengths / Weaknesses: BM25’s strength is exact keyword matching; semantic can broaden recall but may introduce off‑topic items when the query is short and keyword‑heavy.
 
 ---
 
