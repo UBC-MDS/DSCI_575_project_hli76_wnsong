@@ -30,10 +30,16 @@ Run the command will obtain the following files:
 python src/download_data.py
 ```
 - raw data for reviews and meta data as parquet file
+    - `data/raw/Appliances_meta_raw.parquet`
+    - `data/raw/Appliances_reviews_raw.parquet`
 - merged data (reviews + meta data) where each review is a single row in a parquet file
+    - `data/processed/Appliances_merged.parquet`
 - document ids (`parent_asin`) in a pickle file
+    - `data/processed/Appliances_doc_ids.pkl`
 - product documents in a pickle file
+    - `data/processed/Appliances_product_documents.pkl`
 - merged product data where each product is a single row in a parquet file
+    - `data/processed/Appliances_products.parquet`
 
 ### Other Saved Files
 - `data/queries.csv`: 21 queries used for testing
@@ -42,6 +48,8 @@ python src/download_data.py
     - `data/processed/tokenized_corpus.pkl` 
 - files created by `src/semantic.py`:
     - `data/processed/faiss.index`
+- feedback from `app/app.py`
+    - `data/processed/feedback.csv`
 
 ### Run Web Application Locally
 Run the following code in the terminal at project root to run the app
