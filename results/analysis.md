@@ -2,9 +2,10 @@
 
 Queries compared: BM25, Semantic, Hybrid
 
-## Query: `stainless steel kettle`
+## Query: `stainless steel kettle`  
+- **Difficulty:** kettle-easy
 
-- BM25 time: 0.144s  •  Semantic time: 0.187s  •  Hybrid time: 0.071s
+- BM25 time: 0.111s  •  Semantic time: 0.093s  •  Hybrid time: 0.061s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -22,9 +23,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `electric kettle with temperature control for tea`
+## Query: `electric kettle with temperature control for tea`  
+- **Difficulty:** kettle-medium
 
-- BM25 time: 0.105s  •  Semantic time: 0.033s  •  Hybrid time: 0.134s
+- BM25 time: 0.081s  •  Semantic time: 0.024s  •  Hybrid time: 0.092s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -42,9 +44,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `quiet fast-boiling kettle for small apartment that keeps water warm`
+## Query: `quiet fast-boiling kettle for small apartment that keeps water warm`  
+- **Difficulty:** kettle-complex
 
-- BM25 time: 0.156s  •  Semantic time: 0.326s  •  Hybrid time: 0.144s
+- BM25 time: 0.126s  •  Semantic time: 0.025s  •  Hybrid time: 0.141s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -62,9 +65,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `personal smoothie blender`
+## Query: `personal smoothie blender`  
+- **Difficulty:** blender-easy
 
-- BM25 time: 0.047s  •  Semantic time: 0.317s  •  Hybrid time: 0.059s
+- BM25 time: 0.048s  •  Semantic time: 0.021s  •  Hybrid time: 0.059s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -82,9 +86,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `best blender for smoothies with frozen fruit`
+## Query: `best blender for smoothies with frozen fruit`  
+- **Difficulty:** blender-medium
 
-- BM25 time: 0.077s  •  Semantic time: 0.024s  •  Hybrid time: 0.092s
+- BM25 time: 0.079s  •  Semantic time: 0.035s  •  Hybrid time: 0.091s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -102,9 +107,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `high-power blender for nut butter and ice under $200`
+## Query: `high-power blender for nut butter and ice under $200`  
+- **Difficulty:** blender-complex
 
-- BM25 time: 0.100s  •  Semantic time: 0.258s  •  Hybrid time: 0.109s
+- BM25 time: 0.092s  •  Semantic time: 0.024s  •  Hybrid time: 0.104s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -122,9 +128,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `compact toaster oven`
+## Query: `compact toaster oven`  
+- **Difficulty:** oven-easy
 
-- BM25 time: 0.046s  •  Semantic time: 0.316s  •  Hybrid time: 0.059s
+- BM25 time: 0.053s  •  Semantic time: 0.020s  •  Hybrid time: 0.063s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -142,9 +149,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `convection toaster oven for baking small batches`
+## Query: `convection toaster oven for baking small batches`  
+- **Difficulty:** oven-medium
 
-- BM25 time: 0.093s  •  Semantic time: 0.011s  •  Hybrid time: 0.109s
+- BM25 time: 0.094s  •  Semantic time: 0.013s  •  Hybrid time: 0.106s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -162,9 +170,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `countertop oven that fits a 9x13 pan and has air fry mode`
+## Query: `countertop oven that fits a 9x13 pan and has air fry mode`  
+- **Difficulty:** oven-complex
 
-- BM25 time: 0.129s  •  Semantic time: 0.087s  •  Hybrid time: 0.140s
+- BM25 time: 0.123s  •  Semantic time: 0.028s  •  Hybrid time: 0.172s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -182,9 +191,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `robot vacuum`
+## Query: `robot vacuum`  
+- **Difficulty:** vacuum-easy
 
-- BM25 time: 0.032s  •  Semantic time: 0.396s  •  Hybrid time: 0.043s
+- BM25 time: 0.031s  •  Semantic time: 0.027s  •  Hybrid time: 0.044s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -202,9 +212,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `vacuum for hardwood floors and pet hair`
+## Query: `vacuum for hardwood floors and pet hair`  
+- **Difficulty:** vacuum-medium
 
-- BM25 time: 0.078s  •  Semantic time: 0.012s  •  Hybrid time: 0.088s
+- BM25 time: 0.073s  •  Semantic time: 0.013s  •  Hybrid time: 0.088s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
@@ -222,9 +233,10 @@ Queries compared: BM25, Semantic, Hybrid
 
 ---
 
-## Query: `lightweight cordless vacuum for hardwood, pet hair, and stairs under 5 kg`
+## Query: `lightweight cordless vacuum for hardwood, pet hair, and stairs under 5 kg`  
+- **Difficulty:** vacuum-complex
 
-- BM25 time: 0.131s  •  Semantic time: 0.009s  •  Hybrid time: 0.144s
+- BM25 time: 0.132s  •  Semantic time: 0.010s  •  Hybrid time: 0.152s
 
 | Rank | BM25 (ASIN — title) | Semantic (ASIN — title) | Hybrid (ASIN — title) |
 |---:|---|---|---|
