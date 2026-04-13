@@ -1,65 +1,35 @@
-# DSCI_575_project_hli76_wnsong
+# Smart Amazon Product Query Assistant
 
-Smart Amazon Product Query Assistant
-- a context-aware product search assistant that returns relevant Amazon products based on natural language queries
+## Motivation
+We are creating a context-aware product search assistant that returns relevant Amazon products based on natural language queries. We are creating multiple systems serving the search in two Milestone stages:
 
-### Data
+Milestone 1:
+- BM25
+- Semantic
+- Hybrid (Combination of BM25 and Semantic)
 
-Data sources:
-- Dataset Website: [https://amazon-reviews-2023.github.io/](https://amazon-reviews-2023.github.io/)
-- Hugging Face: [https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023](https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023)
+Milestone 2:
+- LLM (To be implement...)
 
-There are total 33 product categories. Each category has two files:
-- Review file (`<Category>.jsonl.gz`): user-written reviews, ratings, timestamps, votes.
-- Metadata file (`meta_<Category>.jsonl.gz`): product titles, descriptions, features, price, categories.
 
-Download instructions and field descriptions are at [https://amazon-reviews-2023.github.io/](https://amazon-reviews-2023.github.io/).
+## Features
 
-### install Python environment
+The system is offered in two ways:
 
+**Main Searching Page** (on Streamlit):
+http://localhost:8501/
+
+## Installation
+
+### Clone the project and install Python environment
 ```bash
-conda install -f environment.yml
-```
+# Clone the repository
+git clone https://github.com/UBC-MDS/DSCI_575_project_hli76_wnsong.git
+cd DSCI_575_project_hli76_wnsong
 
-### Project Structure
-```
-DSCI_575_project_hli76_wnsong/
-│
-├── README.md
-├── environment.yml
-├── .env
-│
-├── data/
-│   ├── queries.csv
-│   ├── raw/
-│   │   ├── Appliances_meta_raw.parquet
-│   │   └── Appliances_reviews_raw.parquet
-│   └── processed/             # cleaned/ chunked / indexed files
-│       ├── Appliances_merged.parquet
-│       ├── Appliances_product_documents.pkl
-│       ├── Appliances_doc_ids.pkl
-│       ├── Appliances_products.parquet
-│       ├── bm25.pkl
-│       ├── tokenized_corpus.pkl
-│       └── faiss.index
-│
-├── notebooks/
-│   ├── milestone1_exploration.ipynb
-│   ├── demo.ipynb
-│   └── <OTHER NOTEBOOKS>
-│
-├── src/
-│   ├── bm25.py
-│   ├── semantic.py
-│   ├── retrieval_metrics.py
-│   ├── utils.py
-│   └── download_data.py
-│
-│── results/
-│   └── milestone1_discussion.md
-│
-├── app/
-│   └── app.py
+# Create and activate the conda environment
+conda env create -f environment.yml
+conda activate dsci575-project
 ```
 
 ### Download Data
@@ -88,3 +58,64 @@ Run the following code in the terminal at project root to run the app
 ```bash
 streamlit run app/app.py
 ```
+
+### Project Structure
+```
+│
+├── app/
+│   └── app.py
+├── data/
+│   ├── processed/                             # cleaned/ chunked / indexed files
+│   │   ├── Appliances_merged.parquet
+│   │   ├── Appliances_product_documents.pkl
+│   │   ├── Appliances_doc_ids.pkl
+│   │   ├── Appliances_products.parquet
+│   │   ├── bm25.pkl
+│   │   ├── tokenized_corpus.pkl
+│   │   └── faiss.index
+│   ├── raw/
+│   │   ├── Appliances_meta_raw.parquet
+│   │   └── Appliances_reviews_raw.parquet
+│   └── queries.csv
+│
+├── notebooks/
+│   ├── milestone1_exploration.ipynb
+│   ├── demo.ipynb
+│   └── <OTHER NOTEBOOKS>
+│
+├── src/
+│   ├── bm25.py
+│   ├── semantic.py
+│   ├── retrieval_metrics.py
+│   ├── utils.py
+│   └── download_data.py
+│
+│── results/
+│   └── milestone1_discussion.md
+│
+│
+├── README.md
+├── environment.yml
+├── .env                 # Optional: API keys for Query with Chat (not in repo)
+└──
+```
+
+## Data Source
+
+There are total 33 product categories. Each category has two files:
+- Review file (`<Category>.jsonl.gz`): user-written reviews, ratings, timestamps, votes.
+- Metadata file (`meta_<Category>.jsonl.gz`): product titles, descriptions, features, price, categories.
+
+- For script download, please see Installation instruction above.
+
+- For self download instructions and field descriptions are at [https://amazon-reviews-2023.github.io/](https://amazon-reviews-2023.github.io/).
+
+- Hugging Face: [https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023](https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023)
+
+## License
+
+See [LICENSE](LICENSE) for details.
+
+## Team
+
+See [team.txt](team.txt) for team member information.
