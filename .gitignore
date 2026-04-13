@@ -208,6 +208,4 @@ __marimo__/
 
 data/raw/*.jsonl
 data/raw/*.parquet
-data/processed/*_merged.parquet
-data/processed/*_doc_ids.pkl
-data/processed/*_product_documents.pkl
+data/processed/*
