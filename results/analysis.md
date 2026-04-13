@@ -330,6 +330,26 @@ There are 12 total queries ordered by Items and Difficulty levels for easier-to-
 
 ---
 
-## Overall Evaluation
+## Overall Summary
 
-- Summary and recommendations.
+### Strengths and weaknesses of each method:
+
+* **BM25**
+- Strengths: Fast, precise for exact keywords, interpretable ranking.
+- Weaknesses: Misses paraphrases and intent; vulnerable to token overlap that surfaces parts/accessories.
+
+* **Semantic (SentenceTransformer + FAISS)**
+- Strengths: Captures paraphrase and intent; robust to wording differences.
+- Weaknesses: Broader recall can introduce off‑topic items; cosine scores are not directly comparable to BM25 and need normalization.
+
+* **Hybrid**
+- Strengths: Balances lexical precision and semantic recall; often yields the best top‑k for medium queries.
+- Weaknesses: Still limited by the quality of candidate sets; normalization choices and alpha tuning affect results.
+
+### Challenging queries: 
+The first challenge type is a multi-constraint query such as price, dimension, weight limit. This would require multiple numeric and boolean checks. The second challenge type is a use-case verification query. This is usually related to quality where the reviews or specs sections might provide better contexts. Additionally, these methods are entirely incapable of distinguishing a "Toaster Oven" from a "Cover for a Toaster Oven" based purely on text.
+
+### Where might more advanced methods help:
+* **Metadata Filtering:** The accessory problem and price constraints cannot be solved by text search alone. The system needs to extract constraints (e.g., `price < 200`, `category != parts`) and apply them as hard filters *before* running BM25 or FAISS.
+* **Reranking:** After retrieval, run a reranker that reads product descriptions and top reviews to score items for the specific intent (e.g., “can make nut butter”, “quiet operation”). This reduces false positives from accessories and parts.
+* **RAG:** An LLM could act as an intermediary, reading the messy retrieved results, recognizing that a user asked for a quiet kettle, scanning the review text of the retrieved documents for mentions of noise, and presenting a synthesized, logically sound final answer to the user.
