@@ -15,7 +15,7 @@ class HybridSearch:
     top_k_candidates : int, optional
         How many candidates to fetch from each backend before merging.
     """
-    def __init__(self, bm25, semantic, alpha=0.5, top_k_candidates=50):
+    def __init__(self, bm25, semantic, alpha=0.5, top_k_candidates=100):
         self.bm25 = bm25
         self.semantic = semantic
         self.alpha = float(alpha)
