@@ -1,18 +1,14 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-from langchain_groq import ChatGroq
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(SCRIPT_DIR)
-load_dotenv()
+
 from src.bm25 import BM25Search
 from src.semantic import SemanticSearch
 from src.hybrid import HybridSearch
 
 TOP_K = 10
-llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=os.getenv("GROQ_API_KEY"))
-
 
 def build_context(results, documents, doc_ids):
     """
@@ -126,8 +122,8 @@ def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
 
     Parameters
     ----------
-    retriever : str
-        Name of retriever to use ("bm25", "semantic", or "hybrid").
+    retriever : BM25Search or SemanticSearch or HybridSearch
+        custom retriever object
     documents : list
         Corpus of documents to search over.
     doc_ids : list
@@ -144,7 +140,6 @@ def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
     str
         Generated answer from the language model.
     """
-    retriever = load_retrievers(documents)[retriever]
     if isinstance(retriever, HybridSearch):
         raw_results = retriever.search(query, top_k=top_k)
         results = [(idx, score) for idx, score, _details in raw_results]
