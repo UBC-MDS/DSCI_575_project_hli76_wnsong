@@ -1,7 +1,5 @@
 import os
-import pickle
 from pathlib import Path
-import pandas as pd
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 
@@ -13,9 +11,27 @@ from src.semantic import SemanticSearch
 from src.hybrid import HybridSearch
 
 TOP_K = 10
+llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=os.getenv("GROQ_API_KEY"))
 
 
 def build_context(results, documents, doc_ids):
+    """
+    Build a formatted context string from retrieval results.
+
+    Parameters
+    ----------
+    results : list of tuple
+        List of (document_index, score) pairs returned by a retriever.
+    documents : list of str
+        List of document texts corresponding to indices.
+    doc_ids : list of str
+        List of product identifiers (product_asin) aligned with documents.
+
+    Returns
+    -------
+    str
+        Formatted context string combining product metadata and text.
+    """
     context = ""
     for i, (index, score) in enumerate(results):
         product_asin = doc_ids[index]
@@ -41,6 +57,23 @@ Instructions:
 
 
 def build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT):
+    """
+    Construct the final prompt for the LLM.
+
+    Parameters
+    ----------
+    query : str
+        User query.
+    context : str
+        Retrieved context string from search results.
+    system_prompt : str, optional
+        System instructions defining model behavior.
+
+    Returns
+    -------
+    str
+        Fully formatted prompt for the language model.
+    """
     return f"""
 {system_prompt}
 
@@ -58,7 +91,26 @@ Question:
 
 
 def load_retrievers(documents):
-    retrievers = {"bm25": BM25Search(documents), "semantic": SemanticSearch(documents)}
+    """
+    Initialize all retrieval systems.
+
+    Parameters
+    ----------
+    documents : list
+        List of documents used to build BM25, semantic, and hybrid retrievers.
+
+    Returns
+    -------
+    dict
+        Dictionary containing initialized retrievers:
+        - "bm25"
+        - "semantic"
+        - "hybrid"
+    """
+    retrievers = {
+        "bm25": BM25Search(documents), 
+        "semantic": SemanticSearch(documents)
+    }
     retrievers["hybrid"] = HybridSearch(
         bm25=retrievers["bm25"],
         semantic=retrievers["semantic"],
@@ -68,17 +120,37 @@ def load_retrievers(documents):
     return retrievers
 
 
-llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=os.getenv("GROQ_API_KEY"))
+def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
+    """
+    Run a Retrieval-Augmented Generation (RAG) pipeline.
 
+    Parameters
+    ----------
+    retriever : str
+        Name of retriever to use ("bm25", "semantic", or "hybrid").
+    documents : list
+        Corpus of documents to search over.
+    doc_ids : list
+        Document identifiers (e.g., ASINs).
+    query : str
+        User input question.
+    llm : (ChatGroq)
+        Language model used for generation.
+    top_k : int, optional
+        Number of top results to retrieve.
 
-def RAG_pipeline(retriever, documents, query, llm, top_k=TOP_K):
+    Returns
+    -------
+    str
+        Generated answer from the language model.
+    """
     retriever = load_retrievers(documents)[retriever]
     if isinstance(retriever, HybridSearch):
         raw_results = retriever.search(query, top_k=top_k)
         results = [(idx, score) for idx, score, _details in raw_results]
     else:
         results = retriever.search(query, top_k=top_k)
-    context = build_context(results)
+    context = build_context(results, documents, doc_ids)
     prompt = build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT)
     response = llm.invoke(prompt).content
     return response
