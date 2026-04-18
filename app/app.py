@@ -120,18 +120,26 @@ def log_feedback(query, doc, score, feedback):
     logfile.to_csv(FEEDBACK_FILE, index=False)
 
 
+st.set_page_config(
+    page_title="Smart Amazon Assistant",
+    layout="wide"
+)
 st.title(f"Smart Amazon Product Query Assistant for {CATEGORY}")
 
-st.markdown(
-    """<style>
+st.markdown("""<style>
 /* Global font size */
 html, body, [class*="css"]  {
-    font-size: 18px;
+    font-size: 20px;
 }
+
+st.set_page_config(
+    page_title="Smart Amazon Assistant",
+    layout="wide"
+)
 
 /* Text input styling */
 .stTextInput > div > div > input {
-    font-size: 16px;
+    font-size: 20px;
     padding: 12px 14px;
     border-radius: 10px;
     border: 1px solid #3B82F6;
@@ -147,13 +155,13 @@ html, body, [class*="css"]  {
 
 /* Labels */
 label {
-    font-size: 16px !important;
+    font-size: 20px !important;
     font-weight: 500;
 }
 
 /* Slider and radio */
 .stSlider, .stRadio {
-    font-size: 16px;
+    font-size: 20px;
 }
 
 /* Card container */
@@ -183,7 +191,7 @@ label {
 
 /* Rating and score */
 .result-meta {
-    font-size: 18px;
+    font-size: 20px;
     color: #9CA3AF;
     margin-bottom: 10px;
 }
