@@ -1,10 +1,14 @@
 import os
+import sys
 import duckdb
 import pickle
 import pandas as pd
 import streamlit as st
 from pathlib import Path
-import sys
+from dotenv import load_dotenv
+load_dotenv()
+
+from langchain_groq import ChatGroq
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -12,6 +16,8 @@ from src.bm25 import BM25Search
 from src.semantic import SemanticSearch
 from src.hybrid import HybridSearch
 from src.download_data import download_data
+from src.rag_pipeline import RAG_pipeline
+
 
 FILE_PATH = os.path.dirname(os.path.abspath("."))
 print(FILE_PATH, os.listdir())
@@ -114,9 +120,10 @@ def log_feedback(query, doc, score, feedback):
     logfile.to_csv(FEEDBACK_FILE, index=False)
 
 
-st.title("Smart Amazon Product Query Assistant")
+st.title(f"Smart Amazon Product Query Assistant for {CATEGORY}")
 
-st.markdown("""<style>
+st.markdown(
+    """<style>
 /* Global font size */
 html, body, [class*="css"]  {
     font-size: 18px;
@@ -187,69 +194,155 @@ label {
     line-height: 1.5;
     margin-bottom: 12px;
 }
-</style>""", unsafe_allow_html=True)
-
-# model
-mode = st.radio("Search Mode", ["BM25", "Semantic", "Hybrid"], horizontal=True)
-
-# display top k results
-top_k = st.slider(
-    "Number of Results", min_value=5, max_value=100, value=5, step=5, format="plain"
+</style>""",
+    unsafe_allow_html=True,
 )
 
-# query
-query = st.text_input("Enter your query")
+@st.cache_resource
+def load_retrievers(documents, TOP_K=10):
+    """
+    Cache retrievers so they are built only once per session.
 
-# Initialize search systems
-bm25 = BM25Search(documents)
-semantic = SemanticSearch(documents)
-hybrid = HybridSearch(
-    bm25=bm25, semantic=semantic, alpha=0.5, top_k_candidates=top_k + 100
-)
+    Parameters
+    ----------
+    documents : list
+        List of documents used for retrieval.
 
-# display results
-if query:
-    if mode == "BM25":
-        results = bm25.search(query, top_k=top_k)
-    elif mode == "Semantic":
-        results = semantic.search(query, top_k=top_k)
-    elif mode == "Hybrid":
-        raw_results = hybrid.search(
-            query, top_k=top_k
-        )  # list of (idx, hybrid_score, details)
-        # convert to same format as BM25/Semantic: list of (idx, score)
-        results = [(idx, score) for idx, score, _details in raw_results]
+    Returns
+    -------
+    dict
+        Dictionary with BM25, Semantic, and Hybrid retrievers.
+    """
+    bm25 = BM25Search(documents)
+    semantic = SemanticSearch(documents)
 
-    st.subheader("Results")
+    hybrid = HybridSearch(
+        bm25=bm25,
+        semantic=semantic,
+        alpha=0.5,
+        top_k_candidates=TOP_K + 100,
+    )
 
-    for i, (idx, score) in enumerate(results):
-        parent_asin = doc_ids[idx]
-        product = products.loc[products.parent_asin == parent_asin]
+    return {
+        "bm25": bm25,
+        "semantic": semantic,
+        "hybrid": hybrid
+    }
 
-        title = product.product_title.values[0]
-        reviews = review_text(product.reviews.values[0])
-        rating = product.avg_rating.values[0]
-        price = product.price.values[0]
 
-        st.markdown(f"""
-        <div class="result-card">
-            <div class="result-title">{title}</div>
-            <div class="result-meta">⭐ Rating: {rating} | Score: {score:.3f} | Price: {price}</div>
-            <div class="result-text">{reviews}</div>
-        </div>
-        """, unsafe_allow_html=True)
+retrievers = load_retrievers(documents)
 
-        # 👍 👎 buttons under each card
-        col1, col2 = st.columns(2)
+tab1, tab2 = st.tabs(["Search", "RAG Assistant"])
+with tab1:
+    # model
+    mode = st.radio("Search Mode", ["BM25", "Semantic", "Hybrid"], horizontal=True)
 
-        with col1:
-            if st.button("👍 Helpful", key=f"up_{i}"):
-                log_feedback(query, parent_asin, score, 1)
-                st.success("Feedback saved")
+    # display top k results
+    top_k = st.slider(
+        "Number of Results", 
+        min_value=5, 
+        max_value=100, 
+        value=5, 
+        step=5, 
+        format="plain"
+    )
 
-        with col2:
-            if st.button("👎 Not Helpful", key=f"down_{i}"):
-                log_feedback(query, parent_asin, score, 0)
-                st.success("Feedback saved")
-        
-        st.divider()
+    # query
+    query = st.text_input("Enter your query")
+
+    # Initialize search systems
+    bm25 = BM25Search(documents)
+    semantic = SemanticSearch(documents)
+    hybrid = HybridSearch(
+        bm25=bm25, semantic=semantic, alpha=0.5, top_k_candidates=top_k + 100
+    )
+
+    # display results
+    if query:
+        with st.spinner("Generating answer..."):
+            if mode == "BM25":
+                results = retrievers["bm25"].search(query, top_k=top_k)
+            elif mode == "Semantic":
+                results = retrievers["semantic"].search(query, top_k=top_k)
+            elif mode == "Hybrid":
+                raw_results = retrievers["hybrid"].search(
+                    query, top_k=top_k
+                )  # list of (idx, hybrid_score, details)
+                # convert to same format as BM25/Semantic: list of (idx, score)
+                results = [(idx, score) for idx, score, _details in raw_results]
+
+        st.subheader("Results")
+
+        for i, (idx, score) in enumerate(results):
+            parent_asin = doc_ids[idx]
+            product = products.loc[products.parent_asin == parent_asin]
+
+            title = product.product_title.values[0]
+            reviews = review_text(product.reviews.values[0])
+            rating = product.avg_rating.values[0]
+            price = product.price.values[0]
+
+            st.markdown(
+                f"""
+            <div class="result-card">
+                <div class="result-title">{title}</div>
+                <div class="result-meta">⭐ Rating: {rating} | Score: {score:.3f} | Price: {price}</div>
+                <div class="result-text">{reviews}</div>
+            </div>
+            """,
+                unsafe_allow_html=True,
+            )
+
+            # 👍 👎 buttons under each card
+            col1, col2 = st.columns(2)
+
+            with col1:
+                if st.button("👍 Helpful", key=f"up_{i}"):
+                    log_feedback(query, parent_asin, score, 1)
+                    st.success("Feedback saved")
+
+            with col2:
+                if st.button("👎 Not Helpful", key=f"down_{i}"):
+                    log_feedback(query, parent_asin, score, 0)
+                    st.success("Feedback saved")
+
+            st.divider()
+
+with tab2:
+    llm = ChatGroq(
+        model="llama-3.3-70b-versatile", 
+        api_key=os.getenv("GROQ_API_KEY")
+    )
+    rag_mode = st.radio("Retriever", ["bm25", "semantic", "hybrid"], horizontal=True)
+    top_k_rag = st.slider(
+        "Context size",
+        min_value=3,
+        max_value=20,
+        value=5,
+        step=1,
+        format="plain",
+        key="rag_topk",
+    )
+
+    rag_query = st.text_input("Ask a question about products", key="rag_query")
+    if rag_query:
+        with st.spinner("Generating answer..."):
+            retriever = retrievers[rag_mode]
+            answer = RAG_pipeline(
+                retriever=retriever,
+                documents=documents,
+                doc_ids=doc_ids,
+                query=rag_query,
+                llm=llm,
+                top_k=top_k_rag
+            )
+        st.markdown("### Recommendation")
+        st.markdown(
+                f"""
+            <div class="result-card">
+                <div class="result-text">{answer}</div>
+            </div>
+            """,
+                unsafe_allow_html=True,
+            )
+        # st.write(answer)
