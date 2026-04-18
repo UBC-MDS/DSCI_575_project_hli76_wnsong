@@ -10,6 +10,36 @@ from src.hybrid import HybridSearch
 
 TOP_K = 10
 
+def load_retrievers(documents):
+    """
+    Initialize all retrieval systems.
+
+    Parameters
+    ----------
+    documents : list
+        List of documents used to build BM25, semantic, and hybrid retrievers.
+
+    Returns
+    -------
+    dict
+        Dictionary containing initialized retrievers:
+        - "bm25"
+        - "semantic"
+        - "hybrid"
+    """
+    retrievers = {
+        "bm25": BM25Search(documents), 
+        "semantic": SemanticSearch(documents)
+    }
+    retrievers["hybrid"] = HybridSearch(
+        bm25=retrievers["bm25"],
+        semantic=retrievers["semantic"],
+        alpha=0.5,
+        top_k_candidates=TOP_K + 100,
+    )
+    return retrievers
+
+
 def build_context(results, documents, doc_ids):
     """
     Build a formatted context string from retrieval results.
@@ -84,36 +114,6 @@ Question:
 {query}
 
 """
-
-
-def load_retrievers(documents):
-    """
-    Initialize all retrieval systems.
-
-    Parameters
-    ----------
-    documents : list
-        List of documents used to build BM25, semantic, and hybrid retrievers.
-
-    Returns
-    -------
-    dict
-        Dictionary containing initialized retrievers:
-        - "bm25"
-        - "semantic"
-        - "hybrid"
-    """
-    retrievers = {
-        "bm25": BM25Search(documents), 
-        "semantic": SemanticSearch(documents)
-    }
-    retrievers["hybrid"] = HybridSearch(
-        bm25=retrievers["bm25"],
-        semantic=retrievers["semantic"],
-        alpha=0.5,
-        top_k_candidates=TOP_K + 100,
-    )
-    return retrievers
 
 
 def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
