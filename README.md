@@ -110,6 +110,13 @@ Please check your terminal for the correct address.
 └── LICENSE
 ```
 
+## Tool Augmentation
+This project utilizes a LangChain Agent setup to augment the standard RAG pipeline with external tool calling capabilities. 
+
+**Web Search Tool (`TavilyClient`)**
+- **Description:** A custom LangChain tool wrapped around the Tavily API. 
+- **Logic:** When the user queries information outside the scope of the historical dataset (e.g., "What is the current price of ASIN B001234?" or "Is there a newer model?"), the Llama 3 model routes the request through the `web_search` tool. The agent automatically executes the query, extracts the text snippets from the live web, and synthesizes them with the local vector search context to provide a complete answer.
+
 ## Data Source
 
 There are total 33 product categories in the Amazon Reviews 2023 dataset. Each category contains two files:
