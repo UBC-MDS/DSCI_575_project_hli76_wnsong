@@ -10,6 +10,7 @@ from src.hybrid import HybridSearch
 
 TOP_K = 10
 
+
 def load_retrievers(documents):
     """
     Initialize all retrieval systems.
