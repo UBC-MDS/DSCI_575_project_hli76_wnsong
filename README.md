@@ -9,7 +9,27 @@ We are creating a context-aware product search assistant that returns relevant A
 - Hybrid Search (Combination of BM25 and Semantic)
 
 #### Milestone 2:
-- LLM (To be implement...)
+- LLM
+
+#### Language Model Selection
+The RAG workflows in this application utilize the **Llama-3.3-70b-versatile** model, accessed via the Groq API (`ChatGroq`). 
+* **Why this model:** Llama 3.3 70B is a state-of-the-art open-weights model that excels at instruction following and summarization, making it ideal for synthesizing Amazon product reviews. 
+* **Why Groq:** Groq's custom LPU (Language Processing Unit) hardware provides ultra-fast inference speeds. This is critical for RAG applications, as the system must process a large prompt containing multiple retrieved product documents and generate a response without introducing noticeable latency for the user.
+
+#### Semantic RAG Workflow
+The Semantic RAG pipeline retrieves documents based on contextual meaning rather than exact keyword matches. 
+1. **Embedding:** The document corpus (product metadata and reviews) is embedded using the `all-MiniLM-L6-v2` model from `sentence-transformers`. This creates dense vector representations of the text.
+2. **Indexing:** The embeddings are L2-normalized and stored in a **FAISS** index (`IndexFlatIP`) to allow for highly efficient Inner Product (cosine similarity) nearest-neighbor searches.
+3. **Retrieval & Generation:** When a user asks a question, their query is converted into an embedding using the same MiniLM model. FAISS retrieves the top `k` most semantically similar product documents. These documents are dynamically formatted into a context string and passed alongside the user's query to the Llama 3 model to generate a natural language response.
+
+#### Hybrid RAG Workflow
+The Hybrid RAG pipeline merges the precision of exact keyword matching (BM25) with the contextual awareness of dense embeddings (Semantic/FAISS) to provide the most robust retrieval results.
+1. **Candidate Generation:** For a given query, the system fetches a wide pool of candidates (e.g., `top_k + 100`) from *both* the BM25 and Semantic retrievers independently.
+2. **Score Normalization:** Because BM25 scores are unbounded and FAISS cosine similarities fall roughly between [-1, 1], the scores are normalized to a standard `[0, 1]` scale:
+   - *BM25:* Normalized using max-scaling (dividing all scores by the maximum score in the set).
+   - *Semantic:* Shifted and clipped to fall strictly between 0 and 1.
+3. **Weighted Combination:** The normalized scores for each document are combined using a weighted formula: `hybrid_score = (alpha * norm_sem) + ((1.0 - alpha) * norm_bm25)`. Currently, `alpha` is set to `0.5`, giving equal weight to both keyword and semantic matches.
+4. **Generation:** The top `k` documents with the highest combined hybrid scores are injected into the context prompt and passed to the Llama 3 model for the final generated answer.
 
 ## Installation
 
@@ -145,6 +165,22 @@ H --> I[ChatGroq LLM]
 I --> J[Generate Answer]
 J --> K[Streamlit Chat UI]
 ```
+
+### Pipeline Model Choice & Rationale
+
+**Chosen Model:** `llama-3.3-70b-versatile` (Served via the Groq API)
+
+**Rationale Behind Model Family (Llama vs. Qwen / Phi):**
+We selected the **Llama 3.3** architecture over alternatives like Qwen or Phi for this specific English-language RAG workflow. 
+* While Microsoft's **Phi-4** and **Phi-4-reasoning** models are incredibly efficient Small Language Models (SLMs) that punch above their weight in logic puzzles, they lack the vast world knowledge and broad vocabulary necessary to seamlessly synthesize highly varied, subjective Amazon product reviews. 
+* While **Qwen** models are exceptional for multilingual and heavy coding tasks, Llama remains the industry standard for general English NLP instruction-following. 
+* Furthermore, Llama models feature first-class, highly optimized support on Groq's ecosystem, making integration flawless.
+
+**Rationale Behind Model Size (70B vs. 0.5B / 3B / 8B):**
+We opted for a massive **70-billion parameter** model rather than a smaller variant (like 3B, 8B, or 14B).
+* **Context Synthesis:** In a RAG pipeline, the prompt is stuffed with multiple lengthy product reviews, creating a lot of "noise." Smaller models (like an 8B) frequently suffer from the "lost-in-the-middle" phenomenon or hallucinate details when overwhelmed by text. The 70B model possesses the deep reasoning capabilities required to accurately weigh sentiment, extract factual specifications, and ignore irrelevant review tangents.
+* **Cost vs. Compute:** Typically, a 70B model is too slow and computationally expensive for a responsive chatbot. However, because we are offloading the inference to Groq's specialized LPU hardware, we can leverage the immense intelligence of a 70B model with the speed and latency typically associated with running a 3B model.
+
 
 ## Data Source
 
