@@ -67,6 +67,20 @@ You can now view your Streamlit app in your browser.
 ```
 Please check your terminal for the correct address.
 
+### 🤖 Enabling LLM & Web Search Features
+To run the RAG assistant and live web search locally, you need to set up your own environment variables. 
+
+1. Create a new file named `.env` in the root directory of the project.
+2. Add your API keys to the file as shown below:
+
+```env
+# 1. Get your free key at: (https://console.groq.com/)
+GROQ_API_KEY=gsk_your_groq_key_here
+
+# 2. Get your free key at: (https://tavily.com/)
+TAVILY_API_KEY=tvly_your_tavily_key_here
+```
+
 ### Project Structure
 ```
 │
@@ -108,6 +122,25 @@ Please check your terminal for the correct address.
 ├── environment.yml
 ├── .env                                       # Optional: API keys for LLM-based querying (not in repo)
 └── LICENSE
+```
+
+## RAG Pipeline Workflow Diagram
+```mermaid
+flowchart TD
+A[User Query] --> B{Select Retriever}
+B -->|BM25| C1[BM25Search]
+B -->|Semantic| C2[SemanticSearch]
+B -->|Hybrid| C3[HybridSearch]
+C1 --> D[Retrieve Top-K Documents]
+C2 --> D
+C3 --> D
+D --> E[Map Indices to doc_ids (ASINs)]
+E --> F[Fetch Product Reviews + Metadata]
+F --> G[build_context()]
+G --> H[build_prompt()]
+H --> I[ChatGroq LLM]
+I --> J[Generate Answer]
+J --> K[Streamlit Chat UI]
 ```
 
 ## Data Source
