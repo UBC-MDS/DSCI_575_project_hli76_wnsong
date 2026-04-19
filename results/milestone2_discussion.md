@@ -79,24 +79,22 @@ It ultimately depends on your specific needs and preferences.
 ### Query 1
 Query="quiet fast-boiling kettle for small apartment that keeps water warm"
 
-```
 Result:
 The Gevi Milk Frothing Pitcher 12oz/350ml (ASIN: B08KGB9563) and Gevi Milk Frothing Pitcher 12oz/350ml (ASIN: B08KGF4Q3H) are both electric kettles that boil water quickly. However, reviews for these products do not specifically mention keeping water warm. One reviewer for the Gevi Milk Frothing Pitcher 12oz/350ml (ASIN: B08KGB9563) mentioned that it "heats up water fast" and another reviewer for the same product mentioned it has "automatic shut-off". Another product, the Danby DKT17C2SSDB 1.7L Kettle (ASIN: B01GV52L4U), has a review stating it "works very well" but does not mention keeping water warm or being particularly quiet. Considering the criteria of being quiet and keeping water warm, none of these products perfectly match, but the Gevi Milk Frothing Pitcher 12oz/350ml (ASIN: B08KGB9563) has some relevant features.
-```
-Accuracy: Yes
-Completeness: Yes
+
+Accuracy: Yes; 
+Completeness: Yes; 
 Fluency: Yes
 
 
 ### Query 2
 Query="high-power blender for nut butter and ice under $200"
 
-```
 Result:
 I don’t know.
-```
-Accuracy: No
-Completeness: No
+
+Accuracy: No; 
+Completeness: No; 
 Fluency: Yes
 
 
@@ -104,34 +102,33 @@ Fluency: Yes
 ### Query 3
 Query="countertop oven that fits a 9x13 pan and has air fry mode"
 
-```
+
 Result:
 The B08PN448L7 and B08B3DK2C6 products are wall ovens and the B095YNXNDW is an air fryer toaster oven, but none of them are countertop ovens that fit a 9x13 pan. However, the B095YNXNDW product has a 13.5 Quart capacity which might fit a 9x13 pan. It is also worth noting that the B07YZTGYXS and B08DLKXX22 products do not have air fry mode. The B08NVBYTZV product has air fry mode, but it is an induction range, not a countertop oven. The B086V54184 product is an electric range with air fry mode, but it is not a countertop oven. Therefore, the B095YNXNDW product is the closest match to the requirements, but it is an air fryer toaster oven, not a traditional countertop oven. It is recommended to check the product dimensions and features to confirm if it fits your needs. The ASIN of the product is B095YNXNDW.
-```
-Accuracy: Yes
-Completeness: Yes
+
+Accuracy: Yes; 
+Completeness: Yes; 
 Fluency: Yes
 
 
 ### Query 4
 Query="lightweight cordless vacuum for hardwood, pet hair, and stairs under 5 kg"
 
-```
+
 Result:
 The acum Cordless Stick Vacuum (ASIN: B009A6OTU2) is a lightweight option that fits your requirements, weighing under 5 kg and suitable for hardwood, pet hair, and stairs. It has a 6-in-1 handheld cleaner and a 30-minute lasting runtime.
-```
-Accuracy: Yes
-Completeness: Yes
+
+Accuracy: Yes; 
+Completeness: Yes; 
 Fluency: Yes
 
 
 ### Query 5
 Query="convection toaster oven for baking small batches"
 
-```
 Result:
 For baking small batches, you may want to consider the Air Fryer Toaster Oven 13.5 Quart Large Air Fryer Oven 10in1 Convection Oven (ASIN: B095YNXNDW). It has a 13.5 quart capacity and features a convection oven setting, making it suitable for baking small batches. One reviewer mentioned using it to make French fries and stated that it was “very easy to use” (180 votes). Another reviewer used it to cook chicken wings and found it to be “easy” and produced “juicy and tender” results (122 votes).
-```
-Accuracy: Yes
-Completeness: Yes 
+
+Accuracy: Yes; 
+Completeness: Yes;  
 Fluency: Yes
