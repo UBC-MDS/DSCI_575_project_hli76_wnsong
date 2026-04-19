@@ -134,10 +134,10 @@ B -->|Hybrid| C3[HybridSearch]
 C1 --> D[Retrieve Top-K Documents]
 C2 --> D
 C3 --> D
-D --> E[Map Indices to doc_ids (ASINs)]
+D --> E["Map Indices to doc_ids (ASINs)"]
 E --> F[Fetch Product Reviews + Metadata]
-F --> G[build_context()]
-G --> H[build_prompt()]
+F --> G["build_context()"]
+G --> H["build_prompt()"]
 H --> I[ChatGroq LLM]
 I --> J[Generate Answer]
 J --> K[Streamlit Chat UI]
