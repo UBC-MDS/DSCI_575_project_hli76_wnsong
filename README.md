@@ -124,6 +124,25 @@ TAVILY_API_KEY=tvly_your_tavily_key_here
 └── LICENSE
 ```
 
+## RAG Pipeline Workflow Diagram
+```mermaid
+flowchart TD
+A[User Query] --> B{Select Retriever}
+B -->|BM25| C1[BM25Search]
+B -->|Semantic| C2[SemanticSearch]
+B -->|Hybrid| C3[HybridSearch]
+C1 --> D[Retrieve Top-K Documents]
+C2 --> D
+C3 --> D
+D --> E[Map Indices to doc_ids (ASINs)]
+E --> F[Fetch Product Reviews + Metadata]
+F --> G[build_context()]
+G --> H[build_prompt()]
+H --> I[ChatGroq LLM]
+I --> J[Generate Answer]
+J --> K[Streamlit Chat UI]
+```
+
 ## Data Source
 
 There are total 33 product categories in the Amazon Reviews 2023 dataset. Each category contains two files:
