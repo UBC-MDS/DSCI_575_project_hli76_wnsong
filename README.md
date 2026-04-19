@@ -128,21 +128,25 @@ TAVILY_API_KEY=tvly_your_tavily_key_here
 │
 ├── notebooks/
 │   ├── milestone1_exploration.ipynb           # Exploration of BM25, Semantic, Hybrid methods
+│   ├── milestone2_rag.ipynb                   # Add RAG pipeline
 │   ├── demo.ipynb                             # Demonstration notebook for search pipeline
 │   └── <OTHER NOTEBOOKS>                      # Additional analysis or experimentation
 │
 ├── src/
 │   ├── bm25.py                                # BM25 implementation + index building
 │   ├── semantic.py                            # Semantic search using SentenceTransformer + FAISS
-│   ├── retrieval_metrics.py                   # Precision@k, Recall@k, MRR, and evaluation utilities
+│   ├── hybrid.py                              # Hybrid implementation
+│   ├── rag_pipelijne.py                       # RAG Pipeline implementation
 │   ├── utils.py                               # Helper functions (loading data, preprocessing, etc.)
 │   └── download_data.py                       # Script to download and preprocess Amazon data
 │
 ├── results/
-│   └── milestone1_discussion.md               # Evaluation results and discussion for Milestone 1
+│   ├── milestone1_discussion.md               # Evaluation results and discussion for Milestone 1
+│   └── milestone2_discussion.md               # Evaluation results and discussion for Milestone 2
 │
-├── README.md
-├── environment.yml
+├── README.md                                  # Description of the project
+├── environment.yml                            # Required package environment
+├── app-demo.mp4                               # Demo video
 ├── .env                                       # Optional: API keys for LLM-based querying (not in repo)
 └── LICENSE
 ```
