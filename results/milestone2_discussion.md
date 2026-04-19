@@ -4,7 +4,7 @@ We chose to implement Groq because we don't have a GPU and we wanted to try diff
 
 # 2.1. Test Different Top-K Retrievals
 
-We tested k = 5, k = 10, and initiall the processes and returning results worked fine. We expected higher k would take longer time to run, but in practice it was hard to differentiate. However, maybe due to Groq API limitation, it quickly sent me limitation reached errors so we had to stop testing.
+We tested k = 5, k = 10, and initially the processes and returning results worked fine. We expected higher k would take longer time to run, but in practice it was hard to differentiate. However, maybe due to Groq API limitation, it quickly sent me limitation reached errors so we had to stop testing.
 
 # 2.3. Prompt Template Design
 
