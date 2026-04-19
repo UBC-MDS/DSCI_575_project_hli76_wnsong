@@ -10,6 +10,7 @@ We are creating a context-aware product search assistant that returns relevant A
 
 #### Milestone 2:
 - LLM
+- RAG Pipeline
 
 #### Language Model Selection
 The RAG workflows in this application utilize the **Llama-3.3-70b-versatile** model, accessed via the Groq API (`ChatGroq`). 
