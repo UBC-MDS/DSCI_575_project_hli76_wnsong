@@ -52,6 +52,9 @@ python src/download_data.py
     - `data/processed/feedback.csv`
 
 ### Run Web Application Locally
+
+![App Demo](app-demo.mp4)
+
 Run the following command at the project root:
 ```bash
 streamlit run app/app.py
