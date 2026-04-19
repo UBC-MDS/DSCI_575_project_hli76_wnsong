@@ -111,5 +111,5 @@ Result:
 For baking small batches, you may want to consider the Air Fryer Toaster Oven 13.5 Quart Large Air Fryer Oven 10in1 Convection Oven (ASIN: B095YNXNDW). It has a 13.5 quart capacity and features a convection oven setting, making it suitable for baking small batches. One reviewer mentioned using it to make French fries and stated that it was “very easy to use” (180 votes). Another reviewer used it to cook chicken wings and found it to be “easy” and produced “juicy and tender” results (122 votes).
 
 Accuracy: Yes; 
-Completeness: Yes;  
+Completeness: Yes; 
 Fluency: Yes
