@@ -53,7 +53,7 @@ python src/download_data.py
 
 ### Run Web Application Locally
 
-Checkout the demo video here: [App Demo](app-demo.mp4)
+Downnload and checkout the demo video here: [App Demo](app-demo.mp4)
 
 Run the following command at the project root:
 ```bash
