@@ -317,7 +317,7 @@ with tab1:
             st.divider()
 
 with tab2:
-    rag_mode = st.radio("Retriever", ["bm25", "semantic", "hybrid"], horizontal=True)
+    rag_mode = st.radio("Retriever", ["hybrid", "bm25", "semantic"], horizontal=True)
     llm_mode = st.radio("LLM Model", ["llama-versatile-70b", "gpt-oss-20b"], horizontal=True)
     
     if llm_mode == "llama-versatile-70b":

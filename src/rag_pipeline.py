@@ -1,6 +1,16 @@
 import os
 from pathlib import Path
 
+# Tool-specific imports
+from tavily import TavilyClient
+from langchain.tools import tool
+from langchain_classic.agents import (
+    AgentExecutor,
+    create_tool_calling_agent,
+    tool,
+)
+from langchain_core.prompts import ChatPromptTemplate
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(SCRIPT_DIR)
 
@@ -9,6 +19,29 @@ from src.semantic import SemanticSearch
 from src.hybrid import HybridSearch
 
 TOP_K = 10
+
+# ---------------------------------------------------------
+# Tool Definition
+# ---------------------------------------------------------
+@tool
+def web_search(query: str, max_results: int = 3) -> str:
+    """
+    Search the web for current, up-to-date information about an Amazon product.
+    Use this tool ONLY when the provided context does not contain enough information
+    to answer the user's question, such as current market pricing, recent news, 
+    competitor comparisons, or updated technical specifications.
+    """
+    tavily_api_key = os.getenv("TAVILY_API_KEY")
+    if not tavily_api_key:
+        return "Error: TAVILY_API_KEY is not set."
+        
+    tavily_client = TavilyClient(api_key=tavily_api_key)
+    results = tavily_client.search(query, max_results=max_results)
+    snippets = [r["content"] for r in results.get("results", [])]
+    return "\n".join(snippets)
+
+# List of tools available to the agent
+tools = [web_search]
 
 
 def load_retrievers(documents):
@@ -75,13 +108,11 @@ parent_asin: {product_asin}
 DEFAULT_SYSTEM_PROMPT = """
 Instructions:
 - You are a helpful Amazon shopping assistant.
-- You must answer the question using ONLY the following context (real product reviews with helpful votes and the metadata for the products).
+- First, try to answer the question using the provided Context (real product reviews and metadata).
 - Always cite the product ASIN when possible.
-- If the answer is present, extract and summarize it clearly.
-- Do NOT say "I don't know" if the answer exists in the context.
-- Only say "I don't know" if the context truly does not contain the answer.
+- If the context DOES NOT contain enough information to fully answer the query, you MUST use the `web_search` tool to find the missing details.
+- Only say "I don't know" if neither the context nor the web search tool can provide the answer.
 """
-
 
 def build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT):
     """
@@ -141,12 +172,39 @@ def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
     str
         Generated answer from the language model.
     """
+    # if isinstance(retriever, HybridSearch):
+    #     raw_results = retriever.search(query, top_k=top_k)
+    #     results = [(idx, score) for idx, score, _details in raw_results]
+    # else:
+    #     results = retriever.search(query, top_k=top_k)
+    # context = build_context(results, documents, doc_ids)
+    # prompt = build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT)
+    # response = llm.invoke(prompt).content
+    # return response
+
+    # Retrieve local context
     if isinstance(retriever, HybridSearch):
         raw_results = retriever.search(query, top_k=top_k)
         results = [(idx, score) for idx, score, _details in raw_results]
     else:
         results = retriever.search(query, top_k=top_k)
+        
     context = build_context(results, documents, doc_ids)
-    prompt = build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT)
-    response = llm.invoke(prompt).content
-    return response
+    
+    # Build the Agent Prompt Template
+    prompt_template = ChatPromptTemplate.from_messages([
+        ("system", DEFAULT_SYSTEM_PROMPT + "\n\nContext:\n{context}"),
+        ("human", "{input}"),
+        ("placeholder", "{agent_scratchpad}"),
+    ])
+    
+    # Create and invoke the agent
+    agent = create_tool_calling_agent(llm, tools, prompt_template)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    
+    response = agent_executor.invoke({
+        "input": query,
+        "context": context
+    })
+    
+    return response["output"]
