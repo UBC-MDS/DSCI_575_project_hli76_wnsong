@@ -317,11 +317,20 @@ with tab1:
             st.divider()
 
 with tab2:
-    llm = ChatGroq(
-        model="llama-3.3-70b-versatile", 
-        api_key=os.getenv("GROQ_API_KEY")
-    )
     rag_mode = st.radio("Retriever", ["bm25", "semantic", "hybrid"], horizontal=True)
+    llm_mode = st.radio("LLM Model", ["llama-versatile-70b", "gpt-oss-20b"], horizontal=True)
+    
+    if llm_mode == "llama-versatile-70b":
+        llm = ChatGroq(
+            model="llama-3.3-70b-versatile", 
+            api_key=os.getenv("GROQ_API_KEY")
+        )
+    else:
+        llm = ChatGroq(
+            model="openai/gpt-oss-20b", 
+            api_key=os.getenv("GROQ_API_KEY")
+        )
+
     top_k_rag = st.slider(
         "Context size",
         min_value=3,
