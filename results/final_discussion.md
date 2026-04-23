@@ -39,20 +39,20 @@
 
 ## Step 2: Additional Feature
 ### What We Implemented
-- Description of the feature: We scaled over 94k products. We also tried to add tool agumentation feature through using Tavily. However, after multiple tests on Langchain libraries, we found new Langchain package wasn't stable and had issue importing the required package. We tried to switch to langchain-classic package but it contains depreciation issue and conflicts in communication with Groq service. Given the time constraint, we ditched the implementation in order to keep our current app working. (Notes: The try out records could be found under the "final_milestone" branch on the Github repository.)
+- Description of the feature: We scaled over 94k products. We also tried to add tool agumentation feature through using Tavily. However, after multiple tests on Langchain libraries, we found new Langchain package wasn't stable and had issue importing the required package. We tried to switch to langchain-classic package but it contains depreciation issue and conflicts in communication with Groq service. Given the time constraint, we gave up the implementation in order to keep our current app working. (Notes: The try out records could be found under the "final_milestone" branch on the Github repository.)
 - Key results or examples: From using over 94k products, this offers better capabilities to users by providing richer answers to users.
 
 
 ## Step 3: Improve Documentation and Code Quality
 
 ### File Structure:
-- We have double checked taht required files are existing and in the correct location.
+- We have double checked that required files are existing and in the correct location.
 
 ### Documentation Update
 - Summary of `README` improvements: We add clear instruction and description in README for users to follow more easily.
 
 ### Code Quality Changes
-- Summary of cleanups: We removed legacy commented out code blocks to make the scripts easier to read. 
+- Summary of cleanups: We removed legacy commented out code blocks to make the scripts easier to read. All functions have Docstrings prepared.
 
 
 ## Step 4: Cloud Deployment Plan
