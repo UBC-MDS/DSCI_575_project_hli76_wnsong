@@ -39,8 +39,10 @@
 
 ## Step 2: Additional Feature
 ### What We Implemented
-- Description of the feature: We scaled over 94k products. We also tried to add tool agumentation feature through using Tavily. However, after multiple tests on Langchain libraries, we found new Langchain package wasn't stable and had issue importing the required package. We tried to switch to langchain-classic package but it contains depreciation issue and conflicts in communication with Groq service. Given the time constraint, we gave up the implementation in order to keep our current app working. (Notes: The try out records could be found under the "final_milestone" branch on the Github repository.)
-- Key results or examples: From using over 94k products, this offers better capabilities to users by providing richer answers to users.
+- Description of the feature: 
+    - We scaled up over 94k products, which is way more than the assigned 10k criteria. 
+    - We also tried to add tool agumentation feature through using Tavily. However, after multiple tests on Langchain libraries, we found new Langchain package wasn't stable and had issue importing the required package. We tried to switch to langchain-classic package but it contains depreciation issue and conflicts in communication with Groq service. Given the time constraint, we gave up the implementation in order to keep our current app working. (Notes: The try out records could be found under the "final_milestone" branch on the Github repository. This branch's app.py can also successfully run locally, but LLM queries might fail due to the Langchain and Groq imcompatibility issue as mentioned and triggers error messages by Groq.)
+- Key results or examples: From using over 94k products and over 2 million rows of product reviews, this scale offers better capabilities by providing richer answers to users' queries.
 
 
 ## Step 3: Improve Documentation and Code Quality
