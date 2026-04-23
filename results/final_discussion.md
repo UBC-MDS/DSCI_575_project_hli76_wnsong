@@ -45,11 +45,14 @@
 
 ## Step 3: Improve Documentation and Code Quality
 
+### File Structure:
+- We have double checked taht required files are existing and in the correct location.
+
 ### Documentation Update
 - Summary of `README` improvements: We add clear instruction and description in README for users to follow more easily.
 
 ### Code Quality Changes
-- Summary of cleanups: We removed legacy commented out code blocks to make the scripts easier to read.
+- Summary of cleanups: We removed legacy commented out code blocks to make the scripts easier to read. 
 
 
 ## Step 4: Cloud Deployment Plan
