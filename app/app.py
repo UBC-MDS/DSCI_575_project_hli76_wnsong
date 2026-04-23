@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import duckdb
 import pickle
 import pandas as pd
@@ -323,12 +324,14 @@ with tab2:
     if llm_mode == "llama-versatile-70b":
         llm = ChatGroq(
             model="llama-3.3-70b-versatile", 
-            api_key=os.getenv("GROQ_API_KEY")
+            api_key=os.getenv("GROQ_API_KEY"),
+            max_retries=3
         )
     else:
         llm = ChatGroq(
-            model="openai/gpt-oss-20b", 
-            api_key=os.getenv("GROQ_API_KEY")
+            model="openai/gpt-oss-20b",
+            api_key=os.getenv("GROQ_API_KEY"),
+            max_retries=3
         )
 
     top_k_rag = st.slider(
@@ -341,25 +344,44 @@ with tab2:
         key="rag_topk",
     )
 
+    # RATE LIMITING LOGIC due to Groq Limitation
+    if "last_request_time" not in st.session_state:
+        st.session_state.last_request_time = 0
+        
+    COOLDOWN_SECONDS = 15
+
     rag_query = st.text_input("Ask a question about products", key="rag_query")
+
     if rag_query:
-        with st.spinner("Generating answer..."):
-            retriever = retrievers[rag_mode]
-            answer = RAG_pipeline(
-                retriever=retriever,
-                documents=documents,
-                doc_ids=doc_ids,
-                query=rag_query,
-                llm=llm,
-                top_k=top_k_rag
-            )
-        st.markdown("### Recommendation")
-        st.markdown(
-                f"""
-            <div class="result-card">
-                <div class="result-text">{answer}</div>
-            </div>
-            """,
-                unsafe_allow_html=True,
-            )
+        # Check time passed before executing
+        current_time = time.time()
+        time_passed = current_time - st.session_state.last_request_time
+        
+        if time_passed < COOLDOWN_SECONDS:
+            remaining = int(COOLDOWN_SECONDS - time_passed)
+            st.warning(f"⏳ To respect API limits, please wait {remaining} more seconds before asking another question.")
+        else:
+            with st.spinner("Generating answer..."):
+                retriever = retrievers[rag_mode]
+                answer = RAG_pipeline(
+                    retriever=retriever,
+                    documents=documents,
+                    doc_ids=doc_ids,
+                    query=rag_query,
+                    llm=llm,
+                    top_k=top_k_rag
+                )
+                
+                # Reset the timer AFTER a successful generation
+                st.session_state.last_request_time = time.time()
+
+            st.markdown("### Recommendation")
+            st.markdown(
+                    f"""
+                <div class="result-card">
+                    <div class="result-text">{answer}</div>
+                </div>
+                """,
+                    unsafe_allow_html=True,
+                )
         # st.write(answer)
