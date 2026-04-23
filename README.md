@@ -3,12 +3,12 @@
 ## Motivation
 We are creating a context-aware product search assistant that returns relevant Amazon products based on natural language queries. The assistant contains multiple systems and will be implemented in two Milestone stages:
 
-#### Milestone 1:
+### Milestone 1:
 - BM25
 - Semantic Search
 - Hybrid Search (Combination of BM25 and Semantic)
 
-#### Milestone 2:
+### Milestone 2:
 - LLM
 - RAG Pipeline
 
@@ -31,6 +31,13 @@ The Hybrid RAG pipeline merges the precision of exact keyword matching (BM25) wi
    - *Semantic:* Shifted and clipped to fall strictly between 0 and 1.
 3. **Weighted Combination:** The normalized scores for each document are combined using a weighted formula: `hybrid_score = (alpha * norm_sem) + ((1.0 - alpha) * norm_bm25)`. Currently, `alpha` is set to `0.5`, giving equal weight to both keyword and semantic matches.
 4. **Generation:** The top `k` documents with the highest combined hybrid scores are injected into the context prompt and passed to the Llama 3 model for the final generated answer.
+
+### Final Milestone:
+* **Add 2nd LLM Model and Compare**: We have chosen another LLM model "gpt-oss-20b" for comparison. Based on the comparison result, we are keeping the original "Llama-3.3-70b-versatile" model as the default setting. However, we keep both models with toggles for users to switch in between as desired when running the app.
+
+* **Data Scale**: Our processed dataset contains 94,319 products and overall 2,128,605 rows of information under the Appliance cateogry. This provides rich information when user search for Applicance items.
+
+* **Usage examples**: We have embedded demo video directly within this README markdown file so users can watch the demo directly without downloading it first. However, users can still choose to download the demo video if wish to.
 
 ## Installation
 
@@ -75,6 +82,7 @@ python src/download_data.py
 ### Run Web Application Locally
 
 Downnload and checkout the demo video here: [App Demo](app-demo.mp4)
+<video src="app-demo.mp4" width="100%" controls></video>
 
 Run the following command at the project root:
 ```bash
