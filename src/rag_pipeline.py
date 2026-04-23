@@ -42,7 +42,7 @@ def web_search(query: str) -> str:
         return "Error: TAVILY_API_KEY is not set."
         
     tavily_client = TavilyClient(api_key=tavily_api_key)
-    # We can hardcode max_results here to simplify the LLM's job
+    # hardcode max_results here to simplify the LLM's job
     results = tavily_client.search(query, max_results=5) 
     snippets = [r["content"] for r in results.get("results", [])]
     return "\n".join(snippets)
@@ -130,12 +130,10 @@ parent_asin: {product_asin}
 
 
 DEFAULT_SYSTEM_PROMPT = """
-Instructions:
-- You are a helpful Amazon shopping assistant.
-- First, try to answer the question using the provided Context (real product reviews and metadata).
-- Always cite the product ASIN when possible.
-- If the context DOES NOT contain enough information to fully answer the query, you MUST use the `web_search` tool to find the missing details.
-- Only say "I don't know" if neither the context nor the web search tool can provide the answer.
+You are a helpful Amazon shopping assistant.
+You have been provided with context containing product reviews and metadata.
+If the provided context does not contain enough information to answer the user's question, you can use the `web_search` tool to look up current pricing, news, or specifications.
+Always try to be helpful and cite the ASIN when possible.
 """
 
 def build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT):
@@ -224,7 +222,12 @@ def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
     
     # Create and invoke the agent
     agent = create_tool_calling_agent(llm, tools, prompt_template)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    agent_executor = AgentExecutor(
+        agent=agent,
+        tools=tools,
+        verbose=True, 
+        handle_parsing_errors=True
+    )
     
     response = agent_executor.invoke({
         "input": query,
