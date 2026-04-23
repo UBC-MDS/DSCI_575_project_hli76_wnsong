@@ -37,8 +37,6 @@ The Hybrid RAG pipeline merges the precision of exact keyword matching (BM25) wi
 
 * **Data Scale**: Our processed dataset contains 94,319 products and overall 2,128,605 rows of information under the Appliance cateogry. This provides rich information when user search for Applicance items.
 
-* **Usage examples**: We have embedded demo video directly within this README markdown file so users can watch the demo directly without downloading it first. However, users can still choose to download the demo video if wish to.
-
 ## Installation
 
 ### Clone the project and install the Python environment
@@ -82,8 +80,6 @@ python src/download_data.py
 ### Run Web Application Locally
 
 Downnload and checkout the demo video here: [App Demo](app-demo.mp4)
-<video src="app-demo.mp4" width="100%" controls></video>
-![App Demo](https://drive.google.com/uc?export=view&id=1wqiDWvjR8xCNpaPikt1icmeMlFNYOJhN)
 
 Run the following command at the project root:
 ```bash
