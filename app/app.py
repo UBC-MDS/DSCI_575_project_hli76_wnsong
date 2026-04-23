@@ -244,7 +244,7 @@ retrievers = load_retrievers(documents)
 tab1, tab2 = st.tabs(["Search", "RAG Assistant"])
 with tab1:
     # model
-    mode = st.radio("Search Mode", ["BM25", "Semantic", "Hybrid"], horizontal=True)
+    mode = st.radio("Search Mode", ["Hybrid", "BM25", "Semantic"], horizontal=True)
 
     # display top k results
     top_k = st.slider(

@@ -9,8 +9,11 @@ from langchain_classic.agents import (
     create_tool_calling_agent,
     tool,
 )
+from langchain_classic.agents import initialize_agent, AgentType
 from langchain_core.prompts import ChatPromptTemplate
 # from langchain.pydantic_v1 import BaseModel, Field  # Note: if this throws an error, use `from pydantic import BaseModel, Field`
+from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage, ToolMessage
 from pydantic import BaseModel, Field
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,9 +28,28 @@ TOP_K = 10
 # ---------------------------------------------------------
 # Tool Definition
 # ---------------------------------------------------------
+
+# @tool
+# def web_search(query: str) -> str:
+#     """
+#     Search the web for current, up-to-date information about an Amazon product.
+#     Use this tool ONLY when the provided context does not contain enough information
+#     to answer the user's question, such as current market pricing, recent news, 
+#     competitor comparisons, or updated technical specifications.
+#     """
+#     tavily_api_key = os.getenv("TAVILY_API_KEY")
+#     if not tavily_api_key:
+#         return "Error: TAVILY_API_KEY is not set."
+        
+#     tavily_client = TavilyClient(api_key=tavily_api_key)
+#     # hardcode max_results here to simplify the LLM's job
+#     results = tavily_client.search(query, max_results=5) 
+#     snippets = [r["content"] for r in results.get("results", [])]
+#     return "\n".join(snippets)
+
+
 class WebSearchInput(BaseModel):
     query: str = Field(description="The specific search term or question to look up on the internet.")
-
 
 @tool(args_schema=WebSearchInput)
 def web_search(query: str) -> str:
@@ -42,7 +64,6 @@ def web_search(query: str) -> str:
         return "Error: TAVILY_API_KEY is not set."
         
     tavily_client = TavilyClient(api_key=tavily_api_key)
-    # hardcode max_results here to simplify the LLM's job
     results = tavily_client.search(query, max_results=5) 
     snippets = [r["content"] for r in results.get("results", [])]
     return "\n".join(snippets)
@@ -66,7 +87,6 @@ def web_search(query: str) -> str:
 
 # List of tools available to the agent
 tools = [web_search]
-
 
 def load_retrievers(documents):
     """
@@ -169,42 +189,8 @@ Question:
 
 """
 
-
 def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
-    """
-    Run a Retrieval-Augmented Generation (RAG) pipeline.
-
-    Parameters
-    ----------
-    retriever : BM25Search or SemanticSearch or HybridSearch
-        custom retriever object
-    documents : list
-        Corpus of documents to search over.
-    doc_ids : list
-        Document identifiers (e.g., ASINs).
-    query : str
-        User input question.
-    llm : (ChatGroq)
-        Language model used for generation.
-    top_k : int, optional
-        Number of top results to retrieve.
-
-    Returns
-    -------
-    str
-        Generated answer from the language model.
-    """
-    # if isinstance(retriever, HybridSearch):
-    #     raw_results = retriever.search(query, top_k=top_k)
-    #     results = [(idx, score) for idx, score, _details in raw_results]
-    # else:
-    #     results = retriever.search(query, top_k=top_k)
-    # context = build_context(results, documents, doc_ids)
-    # prompt = build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT)
-    # response = llm.invoke(prompt).content
-    # return response
-
-    # Retrieve local context
+    # 1. Retrieve local context
     if isinstance(retriever, HybridSearch):
         raw_results = retriever.search(query, top_k=top_k)
         results = [(idx, score) for idx, score, _details in raw_results]
@@ -213,25 +199,123 @@ def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
         
     context = build_context(results, documents, doc_ids)
     
-    # Build the Agent Prompt Template
-    prompt_template = ChatPromptTemplate.from_messages([
-        ("system", DEFAULT_SYSTEM_PROMPT + "\n\nContext:\n{context}"),
-        ("human", "{input}"),
-        ("placeholder", "{agent_scratchpad}"),
-    ])
+    # 2. Inject context directly into the query prompt
+    augmented_query = build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT)
     
-    # Create and invoke the agent
-    agent = create_tool_calling_agent(llm, tools, prompt_template)
-    agent_executor = AgentExecutor(
-        agent=agent,
-        tools=tools,
-        verbose=True, 
-        handle_parsing_errors=True
-    )
+    # 3. Officially bind the tools to the LLM (This prevents the Groq 400 API crash!)
+    llm_with_tools = llm.bind_tools(tools)
     
-    response = agent_executor.invoke({
-        "input": query,
-        "context": context
-    })
+    # 4. Ask the LLM the question
+    messages = [HumanMessage(content=augmented_query)]
+    response = llm_with_tools.invoke(messages)
     
-    return response["output"]
+    # 5. Check if the LLM decided it needs to use the web_search tool
+    if response.tool_calls:
+        for tool_call in response.tool_calls:
+            if tool_call["name"] == "web_search":
+                
+                # Safely extract the query (ignoring any hallucinated arguments like 'topn')
+                search_args = tool_call["args"]
+                search_query = search_args.get("query", query)
+                
+                # Execute your Tavily search tool
+                tool_output = web_search.invoke({"query": search_query})
+                
+                # Append the LLM's tool request AND the actual search results to the chat history
+                messages.append(response)
+                messages.append(ToolMessage(
+                    content=tool_output, 
+                    tool_call_id=tool_call["id"]
+                ))
+                
+        # 6. Have the LLM generate the final answer with the newly retrieved web data
+        final_response = llm.invoke(messages)
+        return final_response.content
+
+    # If no tools were called, just return the normal response
+    return response.content
+
+# def RAG_pipeline(retriever, documents, doc_ids, query, llm, top_k=TOP_K):
+#     """
+#     Run a Retrieval-Augmented Generation (RAG) pipeline.
+
+#     Parameters
+#     ----------
+#     retriever : BM25Search or SemanticSearch or HybridSearch
+#         custom retriever object
+#     documents : list
+#         Corpus of documents to search over.
+#     doc_ids : list
+#         Document identifiers (e.g., ASINs).
+#     query : str
+#         User input question.
+#     llm : (ChatGroq)
+#         Language model used for generation.
+#     top_k : int, optional
+#         Number of top results to retrieve.
+
+#     Returns
+#     -------
+#     str
+#         Generated answer from the language model.
+#     """
+#     # if isinstance(retriever, HybridSearch):
+#     #     raw_results = retriever.search(query, top_k=top_k)
+#     #     results = [(idx, score) for idx, score, _details in raw_results]
+#     # else:
+#     #     results = retriever.search(query, top_k=top_k)
+#     # context = build_context(results, documents, doc_ids)
+#     # prompt = build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT)
+#     # response = llm.invoke(prompt).content
+#     # return response
+
+#     # Retrieve local context
+#     if isinstance(retriever, HybridSearch):
+#         raw_results = retriever.search(query, top_k=top_k)
+#         results = [(idx, score) for idx, score, _details in raw_results]
+#     else:
+#         results = retriever.search(query, top_k=top_k)
+        
+#     context = build_context(results, documents, doc_ids)
+    
+#     # # Build the Agent Prompt Template
+#     # prompt_template = ChatPromptTemplate.from_messages([
+#     #     ("system", DEFAULT_SYSTEM_PROMPT + "\n\nContext:\n{context}"),
+#     #     ("human", "{input}"),
+#     #     ("placeholder", "{agent_scratchpad}"),
+#     # ])
+    
+#     # # Create and invoke the agent
+#     # agent = create_tool_calling_agent(llm, tools, prompt_template)
+#     # agent_executor = AgentExecutor(
+#     #     agent=agent,
+#     #     tools=tools,
+#     #     verbose=True, 
+#     #     handle_parsing_errors=True
+#     # )
+    
+#     # response = agent_executor.invoke({
+#     #     "input": query,
+#     #     "context": context
+#     # })
+
+#     # 2. Inject context directly into the query prompt
+#     augmented_query = build_prompt(query, context, system_prompt=DEFAULT_SYSTEM_PROMPT)
+    
+#     # 3. Use the standard ZERO_SHOT_REACT_DESCRIPTION (Notice we removed "CHAT_")
+#     # This forces the LLM to use a text-based "Action: / Action Input:" format 
+#     # instead of JSON, preventing Groq from crashing.
+#     agent_executor = initialize_agent(
+#         tools=tools,
+#         llm=llm,
+#         agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, 
+#         verbose=True, 
+#         handle_parsing_errors=True,
+#         max_iterations=5 
+#     )
+    
+#     response = agent_executor.invoke({
+#         "input": augmented_query
+#     })
+    
+#     return response["output"]

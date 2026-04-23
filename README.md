@@ -75,6 +75,7 @@ python src/download_data.py
 ### Run Web Application Locally
 
 Downnload and checkout the demo video here: [App Demo](app-demo.mp4)
+<video src="app-demo.mp4" width="100%" controls></video>
 
 Run the following command at the project root:
 ```bash
