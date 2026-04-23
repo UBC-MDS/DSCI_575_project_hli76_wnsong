@@ -83,6 +83,7 @@ python src/download_data.py
 
 Downnload and checkout the demo video here: [App Demo](app-demo.mp4)
 <video src="app-demo.mp4" width="100%" controls></video>
+![Demo GIF](app-demo.gif)
 
 Run the following command at the project root:
 ```bash
