@@ -10,6 +10,8 @@ from langchain_classic.agents import (
     tool,
 )
 from langchain_core.prompts import ChatPromptTemplate
+# from langchain.pydantic_v1 import BaseModel, Field  # Note: if this throws an error, use `from pydantic import BaseModel, Field`
+from pydantic import BaseModel, Field
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(SCRIPT_DIR)
@@ -23,8 +25,12 @@ TOP_K = 10
 # ---------------------------------------------------------
 # Tool Definition
 # ---------------------------------------------------------
-@tool
-def web_search(query: str, max_results: int = 3) -> str:
+class WebSearchInput(BaseModel):
+    query: str = Field(description="The specific search term or question to look up on the internet.")
+
+
+@tool(args_schema=WebSearchInput)
+def web_search(query: str) -> str:
     """
     Search the web for current, up-to-date information about an Amazon product.
     Use this tool ONLY when the provided context does not contain enough information
@@ -36,9 +42,27 @@ def web_search(query: str, max_results: int = 3) -> str:
         return "Error: TAVILY_API_KEY is not set."
         
     tavily_client = TavilyClient(api_key=tavily_api_key)
-    results = tavily_client.search(query, max_results=max_results)
+    # We can hardcode max_results here to simplify the LLM's job
+    results = tavily_client.search(query, max_results=5) 
     snippets = [r["content"] for r in results.get("results", [])]
     return "\n".join(snippets)
+
+# @tool
+# def web_search(query: str, max_results: int = 3) -> str:
+#     """
+#     Search the web for current, up-to-date information about an Amazon product.
+#     Use this tool ONLY when the provided context does not contain enough information
+#     to answer the user's question, such as current market pricing, recent news, 
+#     competitor comparisons, or updated technical specifications.
+#     """
+#     tavily_api_key = os.getenv("TAVILY_API_KEY")
+#     if not tavily_api_key:
+#         return "Error: TAVILY_API_KEY is not set."
+        
+#     tavily_client = TavilyClient(api_key=tavily_api_key)
+#     results = tavily_client.search(query, max_results=max_results)
+#     snippets = [r["content"] for r in results.get("results", [])]
+#     return "\n".join(snippets)
 
 # List of tools available to the agent
 tools = [web_search]
