@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
+# load_dotenv()
 
 from langchain_groq import ChatGroq
 
@@ -23,7 +23,7 @@ from src.rag_pipeline import RAG_pipeline
 FILE_PATH = os.path.dirname(os.path.abspath("."))
 print(FILE_PATH, os.listdir())
 
-download_data()
+# download_data()
 
 CATEGORY = "Appliances"
 PROCESSED_DATA_DIR = Path("../data/processed")
