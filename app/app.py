@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import duckdb
 import pickle
 import pandas as pd
@@ -243,7 +244,7 @@ retrievers = load_retrievers(documents)
 tab1, tab2 = st.tabs(["Search", "RAG Assistant"])
 with tab1:
     # model
-    mode = st.radio("Search Mode", ["BM25", "Semantic", "Hybrid"], horizontal=True)
+    mode = st.radio("Search Mode", ["Hybrid", "BM25", "Semantic"], horizontal=True)
 
     # display top k results
     top_k = st.slider(
@@ -316,12 +317,24 @@ with tab1:
 
             st.divider()
 
+
 with tab2:
-    llm = ChatGroq(
-        model="llama-3.3-70b-versatile", 
-        api_key=os.getenv("GROQ_API_KEY")
-    )
-    rag_mode = st.radio("Retriever", ["bm25", "semantic", "hybrid"], horizontal=True)
+    rag_mode = st.radio("Retriever", ["hybrid", "bm25", "semantic"], horizontal=True)
+    llm_mode = st.radio("LLM Model", ["llama-versatile-70b", "gpt-oss-20b"], horizontal=True)
+    
+    if llm_mode == "llama-versatile-70b":
+        llm = ChatGroq(
+            model="llama-3.3-70b-versatile", 
+            api_key=os.getenv("GROQ_API_KEY"),
+            max_retries=3
+        )
+    else:
+        llm = ChatGroq(
+            model="openai/gpt-oss-20b",
+            api_key=os.getenv("GROQ_API_KEY"),
+            max_retries=3
+        )
+
     top_k_rag = st.slider(
         "Context size",
         min_value=3,
@@ -332,25 +345,83 @@ with tab2:
         key="rag_topk",
     )
 
+    # RATE LIMITING LOGIC due to Groq Limitation
+    if "last_request_time" not in st.session_state:
+        st.session_state.last_request_time = 0
+        
+    COOLDOWN_SECONDS = 15
+
     rag_query = st.text_input("Ask a question about products", key="rag_query")
+
     if rag_query:
-        with st.spinner("Generating answer..."):
-            retriever = retrievers[rag_mode]
-            answer = RAG_pipeline(
-                retriever=retriever,
-                documents=documents,
-                doc_ids=doc_ids,
-                query=rag_query,
-                llm=llm,
-                top_k=top_k_rag
-            )
-        st.markdown("### Recommendation")
-        st.markdown(
-                f"""
-            <div class="result-card">
-                <div class="result-text">{answer}</div>
-            </div>
-            """,
-                unsafe_allow_html=True,
-            )
+        # Check time passed before executing
+        current_time = time.time()
+        time_passed = current_time - st.session_state.last_request_time
+        
+        if time_passed < COOLDOWN_SECONDS:
+            remaining = int(COOLDOWN_SECONDS - time_passed)
+            st.warning(f"⏳ To respect API limits, please wait {remaining} more seconds before asking another question.")
+        else:
+            with st.spinner("Generating answer..."):
+                retriever = retrievers[rag_mode]
+                answer = RAG_pipeline(
+                    retriever=retriever,
+                    documents=documents,
+                    doc_ids=doc_ids,
+                    query=rag_query,
+                    llm=llm,
+                    top_k=top_k_rag
+                )
+                
+                # Reset the timer AFTER a successful generation
+                st.session_state.last_request_time = time.time()
+
+            st.markdown("### Recommendation")
+            st.markdown(
+                    f"""
+                <div class="result-card">
+                    <div class="result-text">{answer}</div>
+                </div>
+                """,
+                    unsafe_allow_html=True,
+                )
         # st.write(answer)
+
+# with tab2:
+#     llm = ChatGroq(
+#         model="llama-3.3-70b-versatile", 
+#         api_key=os.getenv("GROQ_API_KEY")
+#     )
+#     rag_mode = st.radio("Retriever", ["bm25", "semantic", "hybrid"], horizontal=True)
+#     top_k_rag = st.slider(
+#         "Context size",
+#         min_value=3,
+#         max_value=20,
+#         value=5,
+#         step=1,
+#         format="plain",
+#         key="rag_topk",
+#     )
+
+#     rag_query = st.text_input("Ask a question about products", key="rag_query")
+#     if rag_query:
+#         with st.spinner("Generating answer..."):
+#             retriever = retrievers[rag_mode]
+#             answer = RAG_pipeline(
+#                 retriever=retriever,
+#                 documents=documents,
+#                 doc_ids=doc_ids,
+#                 query=rag_query,
+#                 llm=llm,
+#                 top_k=top_k_rag
+#             )
+#         st.markdown("### Recommendation")
+#         st.markdown(
+#                 f"""
+#             <div class="result-card">
+#                 <div class="result-text">{answer}</div>
+#             </div>
+#             """,
+#                 unsafe_allow_html=True,
+#             )
+#         # st.write(answer)
