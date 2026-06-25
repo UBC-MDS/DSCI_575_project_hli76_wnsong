@@ -1,6 +1,13 @@
 import re
+
+import nltk.pathsec
 from nltk.corpus import stopwords
 
+# No patched nltk release exists yet for the nltk.data.load() path-traversal
+# advisory (GHSA, nltk <= 3.9.4). Enabling ENFORCE turns NLTK's built-in but
+# disabled-by-default sandbox check into a hard PermissionError instead of a
+# warning, closing the bypass before the corpus load below.
+nltk.pathsec.ENFORCE = True
 
 STOP_WORDS = set(stopwords.words("english"))
 
