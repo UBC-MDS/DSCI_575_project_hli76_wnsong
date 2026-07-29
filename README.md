@@ -1,5 +1,8 @@
 # Smart Amazon Product Query Assistant
 
+## Note: As of 2026-07-29
+We have archived this repo as this school project has finished and no longer require further maintenance.
+
 ## Motivation
 We are creating a context-aware product search assistant that returns relevant Amazon products based on natural language queries. The assistant contains multiple systems and will be implemented in two Milestone stages:
 
